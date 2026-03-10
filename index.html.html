@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RobloxGUI Studio Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#09090f;--bg2:#111119;--bg3:#17171f;--bg4:#1d1d27;--bg5:#23232f;
+  --border:#252535;--border2:#2f2f45;
+  --accent:#00e5ff;--accent2:#8b5cf6;--accent3:#f59e0b;--accent4:#10b981;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#55607a;
+  --success:#10b981;--danger:#ef4444;--warn:#f59e0b;
+  --panel-l:258px;--panel-r:290px;--hdr:50px;--btm:210px;
+  --glow:0 0 20px rgba(0,229,255,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+input,select,textarea,button{font-family:'Outfit',sans-serif}
+
+/* ─── HEADER ─── */
+#hdr{
+  height:var(--hdr);display:flex;align-items:center;padding:0 14px;gap:10px;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  position:fixed;top:0;left:0;right:0;z-index:200;
+}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+.logo-mark{
+  width:30px;height:30px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,#00e5ff 0%,#8b5cf6 100%);
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  box-shadow:0 0 14px rgba(0,229,255,.3);
+}
+.logo-txt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;
+  background:linear-gradient(90deg,#00e5ff,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-badge{font-size:9px;padding:1px 5px;background:var(--accent3);color:#000;border-radius:3px;font-weight:700;margin-left:2px;-webkit-text-fill-color:#000}
+
+.htabs{display:flex;gap:1px;flex:1;margin:0 8px}
+.htab{padding:5px 12px;border-radius:5px;cursor:pointer;font-size:12px;color:var(--text3);
+  transition:all .15s;border:1px solid transparent;white-space:nowrap}
+.htab:hover{color:var(--text2);background:var(--bg3)}
+.htab.active{color:var(--accent);background:var(--bg4);border-color:var(--border)}
+
+.hbtns{display:flex;gap:6px;margin-left:auto;flex-shrink:0}
+.btn{
+  padding:5px 12px;border-radius:6px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--text2);cursor:pointer;font-size:11px;
+  transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap
+}
+.btn:hover{background:var(--bg4);border-color:var(--border2);color:var(--text)}
+.btn.accent{background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(139,92,246,.15));
+  border-color:rgba(0,229,255,.3);color:var(--accent)}
+.btn.accent:hover{background:linear-gradient(135deg,rgba(0,229,255,.25),rgba(139,92,246,.25))}
+.btn.primary{background:linear-gradient(135deg,#0099bb,#6d28d9);border-color:transparent;color:#fff}
+.btn.primary:hover{opacity:.88;transform:translateY(-1px);box-shadow:var(--glow)}
+.btn.success{background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.4);color:var(--success)}
+.btn.danger{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.3);color:var(--danger)}
+.btn.warn{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.3);color:var(--warn)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ─── LAYOUT ─── */
+#app{display:flex;height:100vh;padding-top:var(--hdr)}
+#lpanel{width:var(--panel-l);min-width:var(--panel-l);background:var(--bg2);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+#center{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#rpanel{width:var(--panel-r);min-width:var(--panel-r);background:var(--bg2);
+  border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+
+/* ─── PANEL CHROME ─── */
+.ph{padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--text3);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ph .ph-action{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;
+  color:var(--text3);cursor:pointer;padding:2px 6px;border-radius:3px;border:1px solid var(--border);
+  background:var(--bg3);transition:all .12s}
+.ph .ph-action:hover{color:var(--text);border-color:var(--border2)}
+
+/* ─── ELEMENT GRID ─── */
+.el-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:8px}
+.el-tile{
+  background:var(--bg3);border:1px solid var(--border);border-radius:7px;
+  padding:8px 4px 6px;cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;gap:3px;transition:all .15s;font-size:10px;color:var(--text3)
+}
+.el-tile:hover{border-color:var(--accent);color:var(--accent);background:var(--bg4);
+  transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,229,255,.1)}
+.el-tile:active{transform:translateY(0)}
+.el-ico{font-size:17px;line-height:1}
+
+/* ─── SECTION COLLAPSE ─── */
+.sc-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 12px;cursor:pointer;font-size:11px;font-weight:600;
+  color:var(--text2);border-bottom:1px solid var(--border);
+  transition:background .1s;user-select:none;flex-shrink:0
+}
+.sc-hdr:hover{background:var(--bg3)}
+.sc-arr{font-size:9px;color:var(--text3);transition:transform .2s}
+.sc-hdr.closed .sc-arr{transform:rotate(-90deg)}
+.sc-body{overflow:hidden;transition:max-height .25s ease}
+.sc-body.closed{max-height:0!important}
+
+/* ─── PREMADE CARDS ─── */
+.pmg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px}
+.pm-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;cursor:pointer;transition:all .15s}
+.pm-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.pm-prev{height:56px;display:flex;align-items:center;justify-content:center;font-size:20px;position:relative}
+.pm-name{padding:5px 7px;font-size:10px;color:var(--text2);text-align:center;border-top:1px solid var(--border)}
+
+/* ─── LAYERS ─── */
+.layer-item{
+  display:flex;align-items:center;gap:7px;padding:5px 10px;
+  border-radius:5px;cursor:pointer;transition:background .1s;font-size:11px;
+  margin:1px 4px;
+}
+.layer-item:hover{background:var(--bg3)}
+.layer-item.sel{background:var(--bg4);color:var(--accent)}
+.layer-item.sel .li-name{color:var(--accent)}
+.li-ico{font-size:13px;flex-shrink:0}
+.li-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)}
+.li-vis{color:var(--text3);cursor:pointer;font-size:11px;padding:1px 3px;
+  border-radius:3px;transition:background .1s;flex-shrink:0}
+.li-vis:hover{background:var(--bg5)}
+
+/* ─── CANVAS ─── */
+#cv-bar{
+  display:flex;align-items:center;gap:8px;padding:6px 14px;
+  border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;flex-wrap:wrap
+}
+.sz-btn{padding:3px 8px;border-radius:4px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--text3);cursor:pointer;font-size:10px;transition:all .12s}
+.sz-btn:hover,.sz-btn.active{border-color:var(--accent);color:var(--accent);background:var(--bg4)}
+#cv-wrap{
+  flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:var(--bg);
+  background-image:radial-gradient(circle,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+#roblox-screen{
+  position:relative;overflow:hidden;flex-shrink:0;
+  border-radius:8px;
+  box-shadow:0 0 0 1px var(--border),0 0 0 2px rgba(0,229,255,.06),0 24px 80px rgba(0,0,0,.7);
+  background:#131320;
+  transform-origin:center center;
+}
+
+/* ─── GUI ELEMENTS ─── */
+.ge{position:absolute;cursor:move;user-select:none;min-width:18px;min-height:14px}
+.ge.sel{outline:1.5px solid var(--accent);outline-offset:1px}
+.ge .rh{
+  position:absolute;width:7px;height:7px;background:var(--accent);
+  border-radius:2px;right:-3px;bottom:-3px;cursor:se-resize;
+  display:none;z-index:10;box-shadow:0 0 6px var(--accent)
+}
+.ge.sel .rh{display:block}
+.ge .del-handle{
+  position:absolute;top:-8px;right:-8px;width:16px;height:16px;
+  background:var(--danger);border-radius:50%;display:none;align-items:center;
+  justify-content:center;font-size:9px;color:#fff;cursor:pointer;z-index:11;
+  font-weight:700;border:1px solid rgba(255,255,255,.2)
+}
+.ge.sel .del-handle{display:flex}
+.ge-frame{border-radius:inherit;width:100%;height:100%}
+.ge-label{display:flex;align-items:center;justify-content:center;width:100%;height:100%;word-break:break-word}
+.ge-btn{
+  width:100%;height:100%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:filter .1s,transform .08s;font-weight:600
+}
+.ge-btn:hover{filter:brightness(1.15)}
+.ge-btn:active{transform:scale(.97)}
+.ge-input{
+  width:100%;height:100%;border-radius:inherit;border:2px solid rgba(255,255,255,.15);
+  padding:4px 8px;font-size:12px;outline:none;background:rgba(0,0,0,.35);color:#fff
+}
+.ge-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px;border-radius:inherit}
+.ge-toggle{display:flex;align-items:center;gap:7px;font-size:11px;padding:0 4px}
+.tog-track{width:34px;height:18px;border-radius:9px;position:relative;transition:background .2s;flex-shrink:0;cursor:pointer}
+.tog-thumb{width:14px;height:14px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.tog-track.on .tog-thumb{left:18px}
+.ge-scroll{width:100%;height:100%;border-radius:inherit;position:relative;overflow:hidden}
+.ge-scroll::after{content:'';position:absolute;right:3px;top:8%;width:3px;height:84%;background:rgba(255,255,255,.15);border-radius:2px}
+.ge-close{width:100%;height:100%;border-radius:50%;background:rgba(239,68,68,.85);
+  display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;
+  color:#fff;font-weight:700;transition:background .15s}
+.ge-close:hover{background:rgba(239,68,68,1)}
+.ge-prog-wrap{width:100%;height:100%;display:flex;align-items:center;padding:0 4px}
+.ge-prog-bg{width:100%;height:10px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden}
+.ge-prog-fill{height:100%;border-radius:5px;transition:width .3s}
+.ge-notif{width:100%;height:100%;border-radius:inherit;display:flex;flex-direction:column;
+  justify-content:center;padding:6px 10px;gap:2px}
+
+/* ─── ANIMATIONS ─── */
+@keyframes rainbow{0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)}}
+@keyframes pulse-scale{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes float-up{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes slideInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{0%{transform:scale(.85);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.anim-rainbow{animation:rainbow 2s linear infinite}
+.anim-pulse{animation:pulse-scale 1.5s ease-in-out infinite}
+.anim-float{animation:float-up 2s ease-in-out infinite}
+.anim-shimmer{
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.15) 50%,transparent 100%);
+  background-size:200% 100%;
+  animation:shimmer 2s linear infinite;
+}
+.slide-in{animation:slideInUp .18s ease}
+.pop-in{animation:pop .2s ease}
+
+/* ─── BOTTOM PANEL ─── */
+#btm{height:var(--btm);border-top:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.btabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.btab{padding:7px 14px;font-size:11px;cursor:pointer;color:var(--text3);
+  border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.btab:hover{color:var(--text2)}
+.btab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.bpanels{flex:1;overflow:hidden;position:relative}
+.bpanel{display:none;height:100%;overflow:auto;padding:10px}
+.bpanel.active{display:block}
+
+/* ─── CODE ─── */
+.code-wrap{height:100%;background:var(--bg);border-radius:6px;border:1px solid var(--border);
+  overflow:hidden;display:flex;flex-direction:column}
+.code-toolbar{
+  padding:5px 10px;border-bottom:1px solid var(--border);
+  display:flex;gap:5px;align-items:center;background:var(--bg2);flex-shrink:0
+}
+textarea.carea{
+  flex:1;background:var(--bg);color:#9de8ff;font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;padding:10px 12px;border:none;outline:none;resize:none;line-height:1.7
+}
+.code-view-out{
+  background:var(--bg);border-radius:6px;border:1px solid var(--border);
+  padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:11.5px;
+  color:#9de8ff;height:100%;overflow:auto;line-height:1.7;white-space:pre
+}
+
+/* ─── PROPERTIES ─── */
+.prop-section{border-bottom:1px solid rgba(255,255,255,.04);padding:8px 0}
+.prop-row{display:flex;flex-direction:column;gap:3px;padding:4px 0}
+.prop-label{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.prop-inp{
+  background:var(--bg3);border:1px solid var(--border);border-radius:5px;
+  padding:5px 8px;color:var(--text);font-size:12px;outline:none;width:100%;
+  transition:border-color .15s
+}
+.prop-inp:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,229,255,.08)}
+.prop-inp[type=number]{-moz-appearance:textfield}
+.prop-inp[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+.prop-sel{
+  background:var(--bg3);border:1px solid var(--border);border-radius:5px;
+  padding:5px 8px;color:var(--text);font-size:12px;outline:none;width:100%
+}
+.prop-inline{display:flex;align-items:center;justify-content:space-between;padding:5px 0;
+  border-bottom:1px solid rgba(255,255,255,.03)}
+.prop-inline .prop-label{font-size:10px}
+input[type=color]{width:26px;height:22px;border:1px solid var(--border);border-radius:4px;
+  background:none;cursor:pointer;padding:1px;overflow:hidden}
+.grad-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:5px}
+.grad-sw{height:20px;border-radius:3px;cursor:pointer;border:2px solid transparent;transition:all .12s}
+.grad-sw:hover,.grad-sw.sel{border-color:var(--accent);transform:scale(1.08)}
+.prop-2col{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+
+/* ─── SOUND PANEL ─── */
+.sound-preset{
+  display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;
+  border:1px solid var(--border);background:var(--bg3);cursor:pointer;
+  transition:all .15s;font-size:11px;color:var(--text2)
+}
+.sound-preset:hover{border-color:var(--accent);color:var(--accent);background:var(--bg4)}
+.sound-preset.active{border-color:var(--success);color:var(--success)}
+.sound-ico{font-size:16px}
+.sound-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:8px}
+
+/* ─── AI PANEL ─── */
+#ai-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(5,5,10,.92);backdrop-filter:blur(10px);
+  flex-direction:column;
+}
+#ai-overlay.open{display:flex}
+.ai-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0
+}
+.ai-title{
+  font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;
+  background:linear-gradient(90deg,#00e5ff,#8b5cf6,#f59e0b);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  display:flex;align-items:center;gap:8px
+}
+.ai-body{display:flex;flex:1;overflow:hidden}
+.ai-chat{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.ai-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.ai-msg{padding:10px 14px;border-radius:10px;font-size:12px;line-height:1.7;max-width:88%}
+.ai-msg.user{
+  background:linear-gradient(135deg,rgba(0,229,255,.12),rgba(139,92,246,.12));
+  border:1px solid rgba(0,229,255,.18);margin-left:auto;
+}
+.ai-msg.bot{background:var(--bg3);border:1px solid var(--border)}
+.ai-msg.bot code{font-family:'JetBrains Mono',monospace;font-size:11px;
+  background:rgba(0,0,0,.3);padding:1px 4px;border-radius:3px;color:var(--accent)}
+.ai-msg pre{font-family:'JetBrains Mono',monospace;font-size:11px;
+  background:rgba(0,0,0,.4);padding:10px;border-radius:6px;overflow-x:auto;
+  border:1px solid var(--border);margin-top:6px;color:#9de8ff;line-height:1.6}
+.ai-thinking{
+  display:none;align-items:center;gap:8px;padding:10px 16px;
+  color:var(--text3);font-size:11px;border-top:1px solid var(--border);flex-shrink:0
+}
+.ai-thinking.show{display:flex}
+.td{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:tdbounce 1.1s infinite}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes tdbounce{0%,100%{opacity:.25;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
+.ai-inp-row{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+#ai-textarea{
+  flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px;color:var(--text);font-size:12px;outline:none;resize:none;
+  height:64px;line-height:1.6;transition:border-color .15s
+}
+#ai-textarea:focus{border-color:var(--accent)}
+.ai-send{
+  align-self:flex-end;padding:8px 16px;
+  background:linear-gradient(135deg,#007acc,#6d28d9);
+  border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:12px;
+  transition:opacity .15s,transform .1s
+}
+.ai-send:hover{opacity:.88;transform:translateY(-1px)}
+.ai-sidebar{
+  width:360px;display:flex;flex-direction:column;
+  background:var(--bg);border-left:1px solid var(--border)
+}
+.ai-activity{flex:1;overflow-y:auto;padding:12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text2);line-height:1.9}
+.activity-line{display:flex;align-items:flex-start;gap:6px;margin-bottom:2px}
+.activity-line .al-icon{flex-shrink:0;margin-top:1px}
+.ai-code-preview{
+  border-top:1px solid var(--border);background:var(--bg2);
+  max-height:180px;overflow:auto;font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;color:#9de8ff;padding:10px 12px;line-height:1.6
+}
+.ai-sidebar-btns{padding:10px;display:flex;gap:6px;flex-shrink:0;border-top:1px solid var(--border)}
+
+/* ─── MODALS ─── */
+.moverlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px)
+}
+.moverlay.open{display:flex}
+.modal{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:20px;min-width:320px;max-width:540px;width:92%;
+  box-shadow:0 24px 80px rgba(0,0,0,.7);animation:pop .2s ease
+}
+.mhdr{
+  font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;
+  margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;color:var(--text)
+}
+.mclose{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;
+  padding:2px 6px;border-radius:4px;transition:all .12s}
+.mclose:hover{color:var(--danger);background:rgba(239,68,68,.1)}
+
+/* ─── TOAST ─── */
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:var(--bg4);border:1px solid var(--border2);color:var(--text);
+  padding:8px 18px;border-radius:20px;font-size:12px;z-index:9999;
+  animation:slideInUp .2s ease;pointer-events:none;white-space:nowrap;
+  box-shadow:0 8px 24px rgba(0,0,0,.5)
+}
+
+/* ─── STATUS BAR ─── */
+#sbar{
+  height:22px;background:var(--bg2);border-top:1px solid var(--border);
+  display:flex;align-items:center;padding:0 12px;gap:14px;font-size:10px;
+  color:var(--text3);flex-shrink:0
+}
+.sb-item{display:flex;align-items:center;gap:4px}
+.sb-dot{width:5px;height:5px;border-radius:50%}
+
+/* ─── FONT LIST ─── */
+.font-item{
+  padding:6px 10px;border-radius:5px;cursor:pointer;
+  transition:background .1s;display:flex;align-items:center;justify-content:space-between;font-size:12px
+}
+.font-item:hover{background:var(--bg3)}
+
+/* ─── ANIM PANEL ─── */
+.anim-btn{
+  padding:5px 10px;border-radius:5px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--text2);cursor:pointer;font-size:10px;
+  transition:all .12s;text-align:center
+}
+.anim-btn:hover,.anim-btn.active{border-color:var(--accent2);color:var(--accent2);background:rgba(139,92,246,.1)}
+
+/* ─── MOBILE ─── */
+@media(max-width:820px){
+  :root{--panel-l:0px;--panel-r:0px}
+  #lpanel,#rpanel{display:none;position:fixed;top:var(--hdr);bottom:0;z-index:150;
+    border-radius:0;box-shadow:4px 0 24px rgba(0,0,0,.6)}
+  #lpanel{left:0;width:260px;display:none}
+  #rpanel{right:0;width:280px;display:none}
+  #lpanel.mob-open,#rpanel.mob-open{display:flex}
+  #mob-bar{display:flex}
+}
+#mob-bar{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:var(--bg2);border-top:1px solid var(--border);
+  padding:6px 10px;gap:6px;overflow-x:auto;z-index:100
+}
+
+/* ─── LUA SYNTAX ─── */
+.kw{color:#c792ea}.str{color:#c3e88d}.cmt{color:#546e7a;font-style:italic}
+.num{color:#f78c6c}.fn{color:#82aaff}.prop{color:#ffcb6b}.paren{color:#ffd700}
+
+/* ─── SCROLLABLE SECTION ─── */
+.scroll-section{overflow-y:auto;flex:1}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header id="hdr">
+  <div class="logo">
+    <div class="logo-mark">🎮</div>
+    <span class="logo-txt">RobloxGUI Studio</span>
+    <span class="logo-badge">PRO</span>
+  </div>
+  <div class="htabs">
+    <div class="htab active" onclick="mainTab('design',this)">Design</div>
+    <div class="htab" onclick="mainTab('code',this)">Code</div>
+    <div class="htab" onclick="mainTab('preview',this)">Preview</div>
+    <div class="htab" onclick="openAI()">✨ AI Designer</div>
+  </div>
+  <div class="hbtns">
+    <button class="btn accent" onclick="openModal('paste-modal')">📋 Paste</button>
+    <button class="btn warn" onclick="exportLua()">⬇ Export .lua</button>
+    <button class="btn primary" onclick="saveProject()">💾 Save</button>
+  </div>
+</header>
+
+<!-- ═══ APP ═══ -->
+<div id="app">
+
+  <!-- LEFT PANEL -->
+  <div id="lpanel">
+
+    <!-- Elements -->
+    <div class="ph">Elements <span class="ph-action" onclick="clearCanvas()">Clear All</span></div>
+    <div class="el-grid">
+      <div class="el-tile" onclick="addEl('frame')"><div class="el-ico">⬜</div>Frame</div>
+      <div class="el-tile" onclick="addEl('label')"><div class="el-ico">🔤</div>Label</div>
+      <div class="el-tile" onclick="addEl('button')"><div class="el-ico">🔲</div>Button</div>
+      <div class="el-tile" onclick="addEl('textbox')"><div class="el-ico">📝</div>TextBox</div>
+      <div class="el-tile" onclick="addEl('image')"><div class="el-ico">🖼</div>Image</div>
+      <div class="el-tile" onclick="addEl('toggle')"><div class="el-ico">🔘</div>Toggle</div>
+      <div class="el-tile" onclick="addEl('scroll')"><div class="el-ico">📜</div>Scroll</div>
+      <div class="el-tile" onclick="addEl('close')"><div class="el-ico">✕</div>CloseBtn</div>
+      <div class="el-tile" onclick="addEl('progress')"><div class="el-ico">▬</div>Progress</div>
+      <div class="el-tile" onclick="addEl('notif')"><div class="el-ico">🔔</div>Notif</div>
+      <div class="el-tile" onclick="addEl('separator')"><div class="el-ico">─</div>Divider</div>
+      <div class="el-tile" onclick="addEl('badge')"><div class="el-ico">🏷</div>Badge</div>
+    </div>
+
+    <!-- Premade GUIs -->
+    <div class="sc-hdr" onclick="toggleSection(this)">
+      <span>📦 Premade GUIs</span><span class="sc-arr">▼</span>
+    </div>
+    <div class="sc-body" style="max-height:260px">
+      <div class="pmg">
+        <div class="pm-card" onclick="loadPremade('inventory')">
+          <div class="pm-prev" style="background:linear-gradient(135deg,#1a1a3e,#2d1b69)">🎒</div>
+          <div class="pm-name">Inventory</div>
+        </div>
+        <div class="pm-card" onclick="loadPremade('shop')">
+          <div class="pm-prev" style="background:linear-gradient(135deg,#0f2e0f,#1b5e1b)">🏪</div>
+          <div class="pm-name">Shop</div>
+        </div>
+        <div class="pm-card" onclick="loadPremade('settings')">
+          <div class="pm-prev" style="background:linear-gradient(135deg,#2e1818,#5e1b1b)">⚙️</div>
+          <div class="pm-name">Settings</div>
+        </div>
+        <div class="pm-card" onclick="loadPremade('hud')">
+          <div class="pm-prev" style="background:linear-gradient(135deg,#0f1f2e,#1b3d5e)">🎯</div>
+          <div class="pm-name">HUD</div>
+        </div>
+        <div class="pm-card" onclick="loadPremade('popup')">
+          <div class="pm-prev" style="background:linear-gradient(135deg,#2e1a08,#5e3414)">💬</div>
+          <div class="pm-name">Popup</div>
+        </div>
+        <div class="pm-card" onclick="loadPremade('leaderboard')">
+          <div class="pm-prev" style="background:linear-gradient(135deg,#1e1e00,#3e3e00)">🏆</div>
+          <div class="pm-name">Leaderboard</div>
+        </div>
+        <div class="pm-card" onclick="loadPremade('navbar')">
+          <div class="pm-prev" style="background:linear-gradient(135deg,#001e2e,#00405e)">🗂</div>
+          <div class="pm-name">NavBar</div>
+        </div>
+        <div class="pm-card" onclick="loadPremade('dialog')">
+          <div class="pm-prev" style="background:linear-gradient(135deg,#1e001e,#40004a)">💭</div>
+          <div class="pm-name">Dialog</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layers -->
+    <div class="ph" style="flex-shrink:0">Layers</div>
+    <div id="layers" class="scroll-section" style="padding:4px 0"></div>
+
+  </div><!-- /lpanel -->
+
+  <!-- CENTER -->
+  <div id="center">
+    <!-- Canvas bar -->
+    <div id="cv-bar">
+      <button class="sz-btn active" onclick="setSize(480,300,this)">🖥 PC</button>
+      <button class="sz-btn" onclick="setSize(320,568,this)">📱 Mobile</button>
+      <button class="sz-btn" onclick="setSize(768,480,this)">📟 Tablet</button>
+      <span id="size-lbl" style="font-size:10px;color:var(--text3)">480×300</span>
+      <label style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3);cursor:pointer;margin-left:4px">
+        <input type="checkbox" id="chk-grid" checked onchange="toggleGrid(this)"> Grid
+      </label>
+      <label style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3);cursor:pointer">
+        <input type="checkbox" id="chk-snap" checked> Snap
+      </label>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:5px">
+        <button class="btn" style="padding:2px 7px;font-size:11px" onclick="doZoom(-10)">−</button>
+        <span id="zoom-lbl" style="font-size:10px;color:var(--text3);min-width:36px;text-align:center">100%</span>
+        <button class="btn" style="padding:2px 7px;font-size:11px" onclick="doZoom(10)">+</button>
+        <button class="btn" style="padding:2px 7px;font-size:11px" onclick="doZoom(0)">⌂</button>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <div id="cv-wrap">
+      <div id="roblox-screen"></div>
+    </div>
+
+    <!-- Bottom panel -->
+    <div id="btm">
+      <div class="btabs">
+        <div class="btab active" onclick="btmTab('view',this)">📄 Code View</div>
+        <div class="btab" onclick="btmTab('editor',this)">✏️ Editor</div>
+        <div class="btab" onclick="btmTab('sound',this)">🔊 Sounds</div>
+        <div class="btab" onclick="btmTab('anim',this)">🎞 Animations</div>
+        <div class="btab" onclick="btmTab('console',this)">🖥 Console</div>
+      </div>
+      <div class="bpanels">
+
+        <!-- Code View -->
+        <div id="bp-view" class="bpanel active">
+          <div class="code-view-out" id="code-out">-- Select elements to see generated Lua code</div>
+        </div>
+
+        <!-- Editor -->
+        <div id="bp-editor" class="bpanel">
+          <div class="code-wrap">
+            <div class="code-toolbar">
+              <button class="btn" style="font-size:10px" onclick="fmtCode()">Format</button>
+              <button class="btn" style="font-size:10px" onclick="copyCode()">Copy</button>
+              <button class="btn" style="font-size:10px" onclick="document.getElementById('editor-ta').value=''">Clear</button>
+              <button class="btn primary" style="font-size:10px" onclick="toast('Code saved to editor ✓')">Apply</button>
+              <span style="margin-left:auto;font-size:10px;color:var(--text3)" id="editor-line-count"></span>
+            </div>
+            <textarea class="carea" id="editor-ta" spellcheck="false"
+              placeholder="-- Write or paste Lua code here..."
+              oninput="updateLineCount(this)"></textarea>
+          </div>
+        </div>
+
+        <!-- Sound Panel -->
+        <div id="bp-sound" class="bpanel">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;height:100%">
+
+            <!-- Presets -->
+            <div>
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px">Sound Presets</div>
+              <div style="display:flex;flex-direction:column;gap:5px" id="sound-presets-list"></div>
+            </div>
+
+            <!-- Selected element sound -->
+            <div>
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px">Element Sound Config</div>
+              <div id="sound-config-panel">
+                <div style="color:var(--text3);font-size:11px">Select an element first</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Animations -->
+        <div id="bp-anim" class="bpanel">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px">Element Animations (Live Preview)</div>
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px" id="anim-btns"></div>
+          <div style="margin-top:10px;font-size:10px;color:var(--text3)">Selected: <span id="anim-selected-name" style="color:var(--text2)">none</span></div>
+          <div style="margin-top:8px">
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:6px">Tween On Open (Roblox)</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px" id="tween-btns"></div>
+          </div>
+        </div>
+
+        <!-- Console -->
+        <div id="bp-console" class="bpanel">
+          <div id="console-out" style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="sbar">
+      <div class="sb-item"><div class="sb-dot" style="background:var(--success)"></div>Ready</div>
+      <div class="sb-item" id="sb-elements">0 elements</div>
+      <div class="sb-item" id="sb-sel">Nothing selected</div>
+      <div style="margin-left:auto" id="sb-hint">Click canvas to deselect • Del to delete • Ctrl+D duplicate</div>
+    </div>
+  </div><!-- /center -->
+
+  <!-- RIGHT PANEL -->
+  <div id="rpanel">
+    <div class="ph">Properties <span id="prop-el-name" style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--accent)"></span></div>
+    <div id="props" style="flex:1;overflow-y:auto;padding:0 12px 12px">
+      <div style="color:var(--text3);font-size:11px;text-align:center;padding:28px 0">Select an element</div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- ═══ AI OVERLAY ═══ -->
+<div id="ai-overlay">
+  <div class="ai-hdr">
+    <div class="ai-title">✨ AI Script Designer</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:10px;color:var(--text3)">Powered by Claude</span>
+      <button class="btn" onclick="closeAI()">✕ Close</button>
+    </div>
+  </div>
+  <div class="ai-body">
+    <div class="ai-chat">
+      <div id="ai-msgs" class="ai-msgs"></div>
+      <div id="ai-thinking" class="ai-thinking">
+        <div class="td"></div><div class="td"></div><div class="td"></div>
+        <span id="ai-think-txt">Thinking...</span>
+      </div>
+      <div class="ai-inp-row">
+        <textarea id="ai-textarea" placeholder="Describe your GUI script... e.g. 'Make a shop with 3 items, close button, and coin counter. Add tween animations when opening.'" onkeydown="aiKey(event)"></textarea>
+        <button class="ai-send" onclick="aiSend()">Send ↑</button>
+      </div>
+    </div>
+    <div class="ai-sidebar">
+      <div style="padding:10px 12px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)">🔬 AI Activity Log</div>
+      <div id="ai-activity" class="ai-activity"></div>
+      <div id="ai-code-prev" class="ai-code-preview" style="display:none"></div>
+      <div class="ai-sidebar-btns">
+        <button class="btn primary" style="flex:1" onclick="insertAICode()">⬇ Insert into Editor</button>
+        <button class="btn" onclick="copyAICode()">Copy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Paste Modal -->
+<div id="paste-modal" class="moverlay">
+  <div class="modal">
+    <div class="mhdr">📋 Paste Lua Code <button class="mclose" onclick="closeModal('paste-modal')">✕</button></div>
+    <p style="font-size:11px;color:var(--text2);margin-bottom:10px">Paste existing Roblox GUI Lua code to import into the editor.</p>
+    <textarea class="carea" id="paste-ta" style="height:180px;border:1px solid var(--border);border-radius:6px;width:100%;margin-bottom:10px;background:var(--bg)" placeholder="-- Paste Lua here..."></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="closeModal('paste-modal')">Cancel</button>
+      <button class="btn primary" onclick="applyPaste()">Import to Editor</button>
+    </div>
+  </div>
+</div>
+
+<!-- Script Modal -->
+<div id="script-modal" class="moverlay">
+  <div class="modal" style="max-width:640px">
+    <div class="mhdr">📜 <span id="script-modal-title">Lua Script</span> <button class="mclose" onclick="closeModal('script-modal')">✕</button></div>
+    <p style="font-size:11px;color:var(--text2);margin-bottom:8px">Script runs when element is interacted with (MouseButton1Click for buttons).</p>
+    <div class="code-wrap" style="height:260px;margin-bottom:10px">
+      <div class="code-toolbar">
+        <button class="btn" style="font-size:10px" onclick="snippet('click')">🖱 Click</button>
+        <button class="btn" style="font-size:10px" onclick="snippet('tween')">🎞 Tween</button>
+        <button class="btn" style="font-size:10px" onclick="snippet('sound')">🔊 Sound</button>
+        <button class="btn" style="font-size:10px" onclick="snippet('close')">✕ CloseGUI</button>
+        <button class="btn" style="font-size:10px" onclick="snippet('notify')">🔔 Notify</button>
+        <button class="btn" style="font-size:10px" onclick="snippet('remote')">📡 Remote</button>
+      </div>
+      <textarea class="carea" id="script-ta" spellcheck="false"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn" onclick="closeModal('script-modal')">Cancel</button>
+      <button class="btn primary" onclick="saveScript()">Save Script</button>
+    </div>
+  </div>
+</div>
+
+<!-- Font Modal -->
+<div id="font-modal" class="moverlay">
+  <div class="modal">
+    <div class="mhdr">🔤 Font Manager <button class="mclose" onclick="closeModal('font-modal')">✕</button></div>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <input class="prop-inp" id="font-url-inp" placeholder="Google Fonts URL or family name..." style="flex:1">
+      <button class="btn primary" onclick="importFont()">Import</button>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Premade Fonts</div>
+    <div id="font-list" style="max-height:220px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- Sound Config Modal (per-element) -->
+<div id="sound-modal" class="moverlay">
+  <div class="modal">
+    <div class="mhdr">🔊 Sound Settings <button class="mclose" onclick="closeModal('sound-modal')">✕</button></div>
+    <div id="sound-modal-body"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button class="btn" onclick="closeModal('sound-modal')">Cancel</button>
+      <button class="btn primary" onclick="saveSoundConfig()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile toolbar -->
+<div id="mob-bar">
+  <button class="btn" onclick="toggleMob('lpanel')">☰ Elements</button>
+  <button class="btn" onclick="addEl('label')">+Label</button>
+  <button class="btn" onclick="addEl('button')">+Btn</button>
+  <button class="btn" onclick="addEl('frame')">+Frame</button>
+  <button class="btn" onclick="toggleMob('rpanel')">⚙ Props</button>
+  <button class="btn accent" onclick="openAI()">✨ AI</button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════ */
+let els = [], selId = null, elCtr = 0, zoom = 100;
+let dragEl = null, dragOX = 0, dragOY = 0;
+let resEl = null, resStart = null;
+let scriptElId = null;
+let aiCodeBuf = '';
+let customFonts = [];
+const SNAP = 8;
+
+/* ═══════════════════════════════════════════════════════════════
+   SOUND ENGINE (Web Audio API)
+═══════════════════════════════════════════════════════════════ */
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+const SFX = {
+  click: (vol=0.5) => {
+    const ctx = getAudioCtx();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine'; o.frequency.setValueAtTime(800, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.08);
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    o.start(); o.stop(ctx.currentTime + 0.1);
+  },
+  success: (vol=0.4) => {
+    const ctx = getAudioCtx();
+    [523, 659, 784].forEach((f, i) => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine'; o.frequency.value = f;
+      const t = ctx.currentTime + i * 0.1;
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      o.start(t); o.stop(t + 0.15);
+    });
+  },
+  error: (vol=0.4) => {
+    const ctx = getAudioCtx();
+    [300, 200].forEach((f, i) => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sawtooth'; o.frequency.value = f;
+      const t = ctx.currentTime + i * 0.12;
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+      o.start(t); o.stop(t + 0.14);
+    });
+  },
+  open: (vol=0.35) => {
+    const ctx = getAudioCtx();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(300, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.2);
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    o.start(); o.stop(ctx.currentTime + 0.3);
+  },
+  close: (vol=0.35) => {
+    const ctx = getAudioCtx();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(900, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.2);
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+    o.start(); o.stop(ctx.currentTime + 0.25);
+  },
+  hover: (vol=0.2) => {
+    const ctx = getAudioCtx();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine'; o.frequency.value = 600;
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+    o.start(); o.stop(ctx.currentTime + 0.04);
+  },
+  coin: (vol=0.4) => {
+    const ctx = getAudioCtx();
+    [988, 1319, 1568].forEach((f, i) => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'square'; o.frequency.value = f;
+      const t = ctx.currentTime + i * 0.07;
+      g.gain.setValueAtTime(vol * 0.5, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+      o.start(t); o.stop(t + 0.1);
+    });
+  },
+  whoosh: (vol=0.3) => {
+    const ctx = getAudioCtx();
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.3, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    const src = ctx.createBufferSource();
+    const filt = ctx.createBiquadFilter(); const g = ctx.createGain();
+    src.buffer = buf; filt.type = 'bandpass'; filt.frequency.value = 1000;
+    filt.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.3);
+    src.connect(filt); filt.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    src.start(); src.stop(ctx.currentTime + 0.3);
+  },
+  pop: (vol=0.4) => {
+    const ctx = getAudioCtx();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(1200, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.05);
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.07);
+    o.start(); o.stop(ctx.currentTime + 0.07);
+  },
+  ding: (vol=0.45) => {
+    const ctx = getAudioCtx();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine'; o.frequency.value = 1047;
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.setValueAtTime(vol, ctx.currentTime + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+    o.start(); o.stop(ctx.currentTime + 0.6);
+  },
+  levelup: (vol=0.35) => {
+    const ctx = getAudioCtx();
+    [523,659,784,1047].forEach((f, i) => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'triangle'; o.frequency.value = f;
+      const t = ctx.currentTime + i * 0.12;
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      o.start(t); o.stop(t + 0.2);
+    });
+  },
+  notification: (vol=0.35) => {
+    const ctx = getAudioCtx();
+    [880, 1100].forEach((f, i) => {
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.type = 'sine'; o.frequency.value = f;
+      const t = ctx.currentTime + i * 0.15;
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      o.start(t); o.stop(t + 0.2);
+    });
+  }
+};
+
+const SOUND_PRESETS = [
+  {id:'none',      name:'None',         icon:'🔇', desc:'No sound'},
+  {id:'click',     name:'Click',        icon:'🖱',  desc:'Soft click'},
+  {id:'success',   name:'Success',      icon:'✅', desc:'Rising chime'},
+  {id:'error',     name:'Error',        icon:'❌', desc:'Low buzz'},
+  {id:'open',      name:'Open GUI',     icon:'📂', desc:'Rising sweep'},
+  {id:'close',     name:'Close GUI',    icon:'📁', desc:'Falling sweep'},
+  {id:'hover',     name:'Hover',        icon:'👆', desc:'Tiny tick'},
+  {id:'coin',      name:'Coin',         icon:'🪙', desc:'Coin collect'},
+  {id:'whoosh',    name:'Whoosh',       icon:'💨', desc:'Air sound'},
+  {id:'pop',       name:'Pop',          icon:'💥', desc:'Quick pop'},
+  {id:'ding',      name:'Ding',         icon:'🔔', desc:'Bell ding'},
+  {id:'levelup',   name:'Level Up',     icon:'⬆️', desc:'4-note rise'},
+  {id:'notification',name:'Notification',icon:'🔔',desc:'Double ping'},
+];
+
+function playSound(id, vol=0.4) {
+  if (!id || id === 'none') return;
+  try { if (SFX[id]) SFX[id](vol); } catch(e){}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ELEMENT DEFAULTS
+═══════════════════════════════════════════════════════════════ */
+function mkEl(type) {
+  const id = ++elCtr;
+  const base = {
+    id, type, name: type + id,
+    x: 30 + (Math.random()*80|0), y: 30 + (Math.random()*60|0),
+    w: 120, h: 40,
+    visible: true, locked: false,
+    zIndex: id, rainbow: false,
+    anim: 'none', tween: 'none',
+    soundClick: 'click', soundHover: 'none', soundOpen: 'none',
+    script: '',
+  };
+  const D = {
+    frame:    {...base, w:160,h:100, bg:'rgba(20,20,45,.9)', border:'rgba(120,120,220,.25)', radius:8, gradient:'', opacity:1},
+    label:    {...base, w:140,h:28, text:'Label', color:'#ffffff', fontSize:14, fontFamily:'Outfit', bg:'transparent', align:'center', bold:false, italic:false, shadow:false, soundClick:'none'},
+    button:   {...base, w:120,h:36, text:'Button', color:'#ffffff', bg:'#4f46e5', radius:6, fontSize:13, fontFamily:'Outfit', gradient:'', bold:true, script:'print("Clicked!")', soundClick:'click', soundHover:'hover'},
+    textbox:  {...base, w:150,h:32, placeholder:'Type here...', color:'#ffffff', bg:'rgba(0,0,0,.35)', borderColor:'rgba(255,255,255,.2)', radius:4, soundClick:'none'},
+    image:    {...base, w:80,h:80, imageId:'', bg:'rgba(255,255,255,.06)', radius:4, soundClick:'none'},
+    toggle:   {...base, w:120,h:26, label:'Option', toggled:false, onColor:'#4f46e5', offColor:'rgba(255,255,255,.1)', color:'#ffffff', fontSize:11, soundClick:'click'},
+    scroll:   {...base, w:160,h:100, bg:'rgba(15,15,40,.85)', border:'rgba(120,120,220,.2)', radius:6, soundClick:'none'},
+    close:    {...base, w:24,h:24, x:200,y:10, soundClick:'close'},
+    progress: {...base, w:160,h:18, value:60, barColor:'#4f46e5', bgColor:'rgba(255,255,255,.1)', radius:5, soundClick:'none'},
+    notif:    {...base, w:180,h:54, title:'Notification', body:'Something happened!', bg:'rgba(20,20,50,.95)', border:'rgba(100,100,255,.3)', radius:8, iconEmoji:'🔔', soundOpen:'notification'},
+    separator:{...base, w:160,h:2, bg:'rgba(255,255,255,.15)', soundClick:'none'},
+    badge:    {...base, w:70,h:22, text:'NEW', bg:'#ef4444', color:'#ffffff', radius:11, fontSize:10, bold:true, soundClick:'none'},
+  };
+  return D[type] || base;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════════════════════════ */
+function addEl(type) {
+  SFX.click();
+  const el = mkEl(type);
+  els.push(el);
+  renderEl(el);
+  renderLayers();
+  selectEl(el.id);
+  updateCode();
+  clog(`Added <span style="color:var(--accent)">${type}</span>`);
+}
+
+function renderEl(el) {
+  const screen = document.getElementById('roblox-screen');
+  let div = document.getElementById('ge-'+el.id);
+  if (!div) {
+    div = document.createElement('div');
+    div.id = 'ge-'+el.id;
+    div.className = 'ge slide-in';
+    screen.appendChild(div);
+    setupDrag(div, el);
+  }
+  div.style.cssText = `left:${el.x}px;top:${el.y}px;width:${el.w}px;height:${el.h}px;z-index:${el.zIndex};display:${el.visible?'':'none'}`;
+
+  // Animation class
+  div.classList.remove('anim-rainbow','anim-pulse','anim-float','anim-shimmer');
+  if (el.rainbow || el.anim === 'rainbow') div.classList.add('anim-rainbow');
+  else if (el.anim === 'pulse') div.classList.add('anim-pulse');
+  else if (el.anim === 'float') div.classList.add('anim-float');
+  else if (el.anim === 'shimmer') div.classList.add('anim-shimmer');
+
+  div.innerHTML = elHTML(el) + `<div class="rh"></div><div class="del-handle" onclick="delEl(${el.id},event)">✕</div>`;
+  setupResize(div.querySelector('.rh'), el);
+
+  // Sound on hover
+  if (el.soundHover && el.soundHover !== 'none') {
+    div.onmouseenter = () => playSound(el.soundHover, 0.2);
+  } else { div.onmouseenter = null; }
+
+  div.onclick = (e) => { e.stopPropagation(); selectEl(el.id); };
+}
+
+function elHTML(el) {
+  switch(el.type) {
+    case 'frame': {
+      const bg = el.gradient || el.bg;
+      return `<div class="ge-frame" style="background:${bg};border:1px solid ${el.border||'transparent'};border-radius:${el.radius||0}px;opacity:${el.opacity??1}"></div>`;
+    }
+    case 'label': {
+      const s = `color:${el.color};font-size:${el.fontSize}px;font-family:'${el.fontFamily}',sans-serif;background:${el.bg};text-align:${el.align};${el.bold?'font-weight:700;':''}${el.italic?'font-style:italic;':''}${el.shadow?'text-shadow:1px 1px 4px rgba(0,0,0,.9);':''}`;
+      return `<div class="ge-label" style="${s}">${el.text}</div>`;
+    }
+    case 'button': {
+      const bg = el.gradient || el.bg;
+      return `<button class="ge-btn" style="background:${bg};color:${el.color};font-size:${el.fontSize}px;font-family:'${el.fontFamily}',sans-serif;border-radius:${el.radius}px;${el.bold?'font-weight:700;':''}" onclick="runElScript(${el.id})">${el.text}</button>`;
+    }
+    case 'textbox':
+      return `<input class="ge-input" placeholder="${el.placeholder}" style="background:${el.bg};border-color:${el.borderColor};color:${el.color};border-radius:${el.radius}px">`;
+    case 'image':
+      return `<div class="ge-img" style="background:${el.bg};border-radius:${el.radius}px">${el.imageId?`<img src="${el.imageId}" style="width:100%;height:100%;object-fit:cover;border-radius:${el.radius}px">`:'🖼'}</div>`;
+    case 'toggle': {
+      const cls = el.toggled ? 'on' : '';
+      const tbg = el.toggled ? el.onColor : el.offColor;
+      return `<div class="ge-toggle" style="color:${el.color};font-size:${el.fontSize}px">
+        <div class="tog-track ${cls}" style="background:${tbg}" onclick="toggleEl(${el.id},event)"><div class="tog-thumb"></div></div>
+        <span>${el.label}</span></div>`;
+    }
+    case 'scroll':
+      return `<div class="ge-scroll" style="background:${el.bg};border:1px solid ${el.border||'transparent'};border-radius:${el.radius||0}px"></div>`;
+    case 'close':
+      return `<div class="ge-close" onclick="previewClose()">✕</div>`;
+    case 'progress': {
+      const pct = Math.max(0,Math.min(100,el.value||0));
+      return `<div class="ge-prog-wrap"><div class="ge-prog-bg" style="background:${el.bgColor};border-radius:${el.radius}px">
+        <div class="ge-prog-fill" style="width:${pct}%;background:${el.barColor};border-radius:${el.radius}px"></div></div></div>`;
+    }
+    case 'notif':
+      return `<div class="ge-notif" style="background:${el.bg};border:1px solid ${el.border||'transparent'};border-radius:${el.radius||0}px">
+        <div style="font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;gap:5px">${el.iconEmoji} ${el.title}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.65)">${el.body}</div></div>`;
+    case 'separator':
+      return `<div style="width:100%;height:100%;background:${el.bg};border-radius:2px"></div>`;
+    case 'badge': {
+      const bg = el.gradient || el.bg;
+      return `<div style="width:100%;height:100%;background:${bg};color:${el.color};border-radius:${el.radius}px;display:flex;align-items:center;justify-content:center;font-size:${el.fontSize}px;${el.bold?'font-weight:700;':''}">${el.text}</div>`;
+    }
+    default: return '';
+  }
+}
+
+function toggleEl(id, e) {
+  e && e.stopPropagation();
+  const el = els.find(e=>e.id===id);
+  if (!el) return;
+  el.toggled = !el.toggled;
+  playSound(el.soundClick);
+  renderEl(el);
+  if (selId === id) showProps(el);
+}
+
+function runElScript(id) {
+  const el = els.find(e=>e.id===id);
+  if (!el) return;
+  playSound(el.soundClick);
+  if (!el.script) return;
+  clog(`▶ Running <span style="color:var(--warn)">${el.name}</span> script`);
+  el.script.split('\n').filter(l=>l.trim()).forEach(l => {
+    const m = l.match(/print\(["'`](.+?)["'`]\)/);
+    if (m) clog(`  <span style="color:var(--success)">📤 ${m[1]}</span>`);
+  });
+}
+
+function previewClose() {
+  playSound('close');
+  const s = document.getElementById('roblox-screen');
+  s.style.transition = 'opacity .3s,transform .3s';
+  s.style.opacity = '0'; s.style.transform = 'scale(.95)';
+  setTimeout(() => {
+    s.style.opacity = '1'; s.style.transform = 'scale(1)';
+  }, 400);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DRAG
+═══════════════════════════════════════════════════════════════ */
+function setupDrag(div, el) {
+  const start = (cx, cy) => {
+    dragEl = el;
+    const r = div.getBoundingClientRect();
+    dragOX = cx - r.left; dragOY = cy - r.top;
+  };
+  div.addEventListener('mousedown', (e) => {
+    if (e.target.classList.contains('rh') || e.target.classList.contains('del-handle')) return;
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+    start(e.clientX, e.clientY); e.preventDefault();
+  });
+  div.addEventListener('touchstart', (e) => {
+    if (e.target.classList.contains('rh')) return;
+    const t = e.touches[0]; start(t.clientX, t.clientY); e.preventDefault();
+  }, {passive:false});
+}
+
+const moveDrag = (cx, cy) => {
+  if (!dragEl) return;
+  const s = document.getElementById('roblox-screen');
+  const sr = s.getBoundingClientRect(); const sc = zoom/100;
+  let nx = (cx - sr.left)/sc - dragOX/sc;
+  let ny = (cy - sr.top)/sc - dragOY/sc;
+  if (document.getElementById('chk-snap').checked) {
+    nx = Math.round(nx/SNAP)*SNAP; ny = Math.round(ny/SNAP)*SNAP;
+  }
+  dragEl.x = Math.max(0,nx|0); dragEl.y = Math.max(0,ny|0);
+  const d = document.getElementById('ge-'+dragEl.id);
+  if (d) { d.style.left=dragEl.x+'px'; d.style.top=dragEl.y+'px'; }
+};
+
+function setupResize(handle, el) {
+  if (!handle) return;
+  handle.addEventListener('mousedown', (e) => {
+    resEl = el; resStart = {x:e.clientX,y:e.clientY,w:el.w,h:el.h};
+    e.stopPropagation(); e.preventDefault();
+  });
+}
+const doResize = (cx, cy) => {
+  if (!resEl || !resStart) return;
+  const sc = zoom/100;
+  let nw = resStart.w + (cx-resStart.x)/sc;
+  let nh = resStart.h + (cy-resStart.y)/sc;
+  if (document.getElementById('chk-snap').checked) {
+    nw = Math.round(nw/SNAP)*SNAP; nh = Math.round(nh/SNAP)*SNAP;
+  }
+  resEl.w = Math.max(18,nw|0); resEl.h = Math.max(12,nh|0);
+  const d = document.getElementById('ge-'+resEl.id);
+  if (d) { d.style.width=resEl.w+'px'; d.style.height=resEl.h+'px'; }
+};
+
+document.addEventListener('mousemove', e => { moveDrag(e.clientX,e.clientY); doResize(e.clientX,e.clientY); });
+document.addEventListener('touchmove', e => { const t=e.touches[0]; moveDrag(t.clientX,t.clientY); doResize(t.clientX,t.clientY); },{passive:false});
+document.addEventListener('mouseup', endInteract);
+document.addEventListener('touchend', endInteract);
+function endInteract() {
+  if (dragEl) { updateCode(); if(selId===dragEl.id) showProps(dragEl); }
+  if (resEl) { renderEl(resEl); updateCode(); if(selId===resEl.id) showProps(resEl); }
+  dragEl = null; resEl = null; resStart = null;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SELECT / DESELECT
+═══════════════════════════════════════════════════════════════ */
+function selectEl(id) {
+  selId = id;
+  document.querySelectorAll('.ge').forEach(d=>d.classList.remove('sel'));
+  const d = document.getElementById('ge-'+id);
+  if (d) d.classList.add('sel');
+  const el = els.find(e=>e.id===id);
+  if (el) {
+    showProps(el);
+    document.getElementById('prop-el-name').textContent = el.name;
+    document.getElementById('sb-sel').textContent = `${el.name} (${el.type})`;
+    renderLayers();
+    updateSoundConfigPanel(el);
+    document.getElementById('anim-selected-name').textContent = el.name;
+  }
+}
+
+document.getElementById('roblox-screen').addEventListener('click', (e) => {
+  if (e.target.id === 'roblox-screen') {
+    selId = null;
+    document.querySelectorAll('.ge').forEach(d=>d.classList.remove('sel'));
+    document.getElementById('prop-el-name').textContent = '';
+    document.getElementById('sb-sel').textContent = 'Nothing selected';
+    document.getElementById('props').innerHTML = '<div style="color:var(--text3);font-size:11px;text-align:center;padding:28px 0">Select an element</div>';
+    renderLayers();
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   PROPERTIES
+═══════════════════════════════════════════════════════════════ */
+function showProps(el) {
+  const C = document.getElementById('props'); C.innerHTML = '';
+
+  const sec = (title) => {
+    C.innerHTML += `<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:10px 0 4px">${title}</div>`;
+  };
+  const row = (label, html) => {
+    C.innerHTML += `<div class="prop-row"><div class="prop-label">${label}</div>${html}</div>`;
+  };
+  const inl = (label, html) => {
+    C.innerHTML += `<div class="prop-inline"><div class="prop-label">${label}</div>${html}</div>`;
+  };
+  const p = (key, type='text', extra='') =>
+    `<input class="prop-inp" type="${type}" value="${el[key]??''}" ${extra} onchange="sp(${el.id},'${key}',${type==='checkbox'?'this.checked':(type==='number'?'+this.value':'this.value')});re(${el.id})">`;
+
+  sec('Transform');
+  C.innerHTML += `<div class="prop-2col">
+    <div class="prop-row"><div class="prop-label">X</div>${p('x','number')}</div>
+    <div class="prop-row"><div class="prop-label">Y</div>${p('y','number')}</div>
+    <div class="prop-row"><div class="prop-label">W</div>${p('w','number')}</div>
+    <div class="prop-row"><div class="prop-label">H</div>${p('h','number')}</div>
+    <div class="prop-row"><div class="prop-label">Z</div>${p('zIndex','number')}</div>
+  </div>`;
+  inl('Visible', p('visible','checkbox', el.visible?'checked':''));
+  inl('Rainbow', p('rainbow','checkbox', el.rainbow?'checked':''));
+  row('Name', p('name'));
+
+  if (el.type==='label'||el.type==='button'||el.type==='badge') {
+    sec('Text');
+    row('Text', p('text'));
+    C.innerHTML += `<div class="prop-2col">
+      <div class="prop-row"><div class="prop-label">Size</div>${p('fontSize','number')}</div>
+      <div class="prop-inline" style="flex-direction:column;align-items:flex-start;gap:3px">
+        <div class="prop-label">Color</div><input type="color" value="${toHex(el.color)}" onchange="sp(${el.id},'color',this.value);re(${el.id})">
+      </div>
+    </div>`;
+    row('Font', `<div style="display:flex;gap:4px">
+      <select class="prop-sel" onchange="sp(${el.id},'fontFamily',this.value);re(${el.id})">
+        ${getAllFonts().map(f=>`<option ${el.fontFamily===f?'selected':''}>${f}</option>`).join('')}
+      </select>
+      <button class="btn" style="padding:3px 6px;font-size:9px;flex-shrink:0" onclick="openModal('font-modal')">+</button>
+    </div>`);
+    if (el.type==='label') {
+      row('Align', `<select class="prop-sel" onchange="sp(${el.id},'align',this.value);re(${el.id})">
+        ${['left','center','right'].map(a=>`<option ${el.align===a?'selected':''}>${a}</option>`).join('')}
+      </select>`);
+      inl('Bold',   p('bold','checkbox',el.bold?'checked':''));
+      inl('Italic', p('italic','checkbox',el.italic?'checked':''));
+      inl('Shadow', p('shadow','checkbox',el.shadow?'checked':''));
+    }
+    if (el.type==='button') inl('Bold', p('bold','checkbox',el.bold?'checked':''));
+  }
+
+  if (['frame','button','scroll','badge','notif'].includes(el.type)) {
+    sec('Background');
+    inl('Color', `<input type="color" value="${toHex(el.bg)}" onchange="sp(${el.id},'bg',this.value);re(${el.id})">`);
+    if (el.type !== 'badge') row('Border Radius', p('radius','number'));
+    if (el.type==='frame'||el.type==='scroll') {
+      inl('Border', `<input type="color" value="${toHex(el.border||'#333355')}" onchange="sp(${el.id},'border',this.value);re(${el.id})">`);
+      row('Opacity', `<input class="prop-inp" type="range" min="0" max="1" step=".05" value="${el.opacity??1}" onchange="sp(${el.id},'opacity',+this.value);re(${el.id})">`);
+    }
+    sec('Gradient');
+    C.innerHTML += `<div class="grad-grid" id="gg-${el.id}"></div>
+      <button class="btn" style="width:100%;margin-top:5px;font-size:10px" onclick="sp(${el.id},'gradient','');re(${el.id});showProps(els.find(e=>e.id==${el.id}))">✕ Clear</button>`;
+    setTimeout(()=>buildGradGrid(el), 10);
+  }
+
+  if (el.type==='button') {
+    sec('Button');
+    row('Border Radius', p('radius','number'));
+  }
+
+  if (el.type==='toggle') {
+    sec('Toggle');
+    row('Label', p('label'));
+    inl('On Color', `<input type="color" value="${toHex(el.onColor)}" onchange="sp(${el.id},'onColor',this.value);re(${el.id})">`);
+    inl('Default On', p('toggled','checkbox',el.toggled?'checked':''));
+  }
+
+  if (el.type==='textbox') {
+    sec('TextBox');
+    row('Placeholder', p('placeholder'));
+    inl('Border Color', `<input type="color" value="${toHex(el.borderColor||'#555577')}" onchange="sp(${el.id},'borderColor',this.value);re(${el.id})">`);
+    row('Border Radius', p('radius','number'));
+  }
+
+  if (el.type==='progress') {
+    sec('Progress');
+    row('Value (0–100)', p('value','number'));
+    inl('Bar Color', `<input type="color" value="${toHex(el.barColor)}" onchange="sp(${el.id},'barColor',this.value);re(${el.id})">`);
+    inl('BG Color', `<input type="color" value="${toHex(el.bgColor||'#333')}" onchange="sp(${el.id},'bgColor',this.value);re(${el.id})">`);
+    row('Radius', p('radius','number'));
+  }
+
+  if (el.type==='notif') {
+    sec('Notification');
+    row('Title', p('title'));
+    row('Body Text', p('body'));
+    row('Icon Emoji', p('iconEmoji'));
+  }
+
+  // Sound
+  sec('🔊 Sounds');
+  const sRow = (lbl, key) => {
+    row(lbl, `<select class="prop-sel" onchange="sp(${el.id},'${key}',this.value)">
+      ${SOUND_PRESETS.map(s=>`<option value="${s.id}" ${el[key]===s.id?'selected':''}>${s.icon} ${s.name}</option>`).join('')}
+    </select>`);
+  };
+  sRow('On Click', 'soundClick');
+  sRow('On Hover', 'soundHover');
+  if (['frame','scroll','notif'].includes(el.type)) sRow('On Open', 'soundOpen');
+  C.innerHTML += `<button class="btn" style="margin-top:5px;font-size:10px" onclick="testElSounds(${el.id})">▶ Preview Sounds</button>`;
+
+  // Script
+  if (['button','toggle','close'].includes(el.type)) {
+    sec('📜 Script');
+    C.innerHTML += `<button class="btn accent" style="width:100%" onclick="openScriptModal(${el.id})">📜 Edit Lua Script</button>`;
+    if (el.script) {
+      C.innerHTML += `<div style="margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--text3);background:var(--bg3);padding:6px;border-radius:4px;max-height:60px;overflow:hidden">${el.script.slice(0,120)}${el.script.length>120?'...':''}</div>`;
+    }
+  }
+
+  // Actions
+  sec('');
+  C.innerHTML += `<div style="display:flex;gap:5px;flex-wrap:wrap">
+    <button class="btn danger" style="flex:1" onclick="delEl(${el.id})">🗑 Delete</button>
+    <button class="btn" style="flex:1" onclick="dupEl(${el.id})">⎘ Dupe</button>
+    <button class="btn" style="flex:1" onclick="bringFront(${el.id})">▲ Front</button>
+    <button class="btn" style="flex:1" onclick="sendBack(${el.id})">▼ Back</button>
+  </div>`;
+}
+
+function sp(id, key, val) {
+  const el = els.find(e=>e.id===id); if (!el) return;
+  el[key] = val; updateCode();
+}
+function re(id) {
+  const el = els.find(e=>e.id===id); if (!el) return;
+  renderEl(el);
+}
+function buildGradGrid(el) {
+  const g = document.getElementById('gg-'+el.id); if (!g) return;
+  GRADIENTS.forEach(gr => {
+    const s = document.createElement('div');
+    s.className = 'grad-sw' + (el.gradient===gr?' sel':'');
+    s.style.background = gr;
+    s.onclick = () => { sp(el.id,'gradient',gr); re(el.id); showProps(els.find(e=>e.id===el.id)); };
+    g.appendChild(s);
+  });
+}
+
+function testElSounds(id) {
+  const el = els.find(e=>e.id===id); if (!el) return;
+  playSound(el.soundOpen || el.soundClick);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYERS
+═══════════════════════════════════════════════════════════════ */
+function renderLayers() {
+  const L = document.getElementById('layers'); L.innerHTML = '';
+  document.getElementById('sb-elements').textContent = `${els.length} element${els.length!==1?'s':''}`;
+  [...els].reverse().forEach(el => {
+    const d = document.createElement('div');
+    d.className = 'layer-item' + (el.id===selId?' sel':'');
+    d.innerHTML = `<span class="li-ico">${elIcon(el.type)}</span>
+      <span class="li-name">${el.name}</span>
+      <span class="li-vis" onclick="toggleVis(${el.id},event)">${el.visible?'👁':'🙈'}</span>`;
+    d.onclick = () => selectEl(el.id);
+    L.appendChild(d);
+  });
+}
+
+function toggleVis(id, e) {
+  e.stopPropagation();
+  const el = els.find(e=>e.id===id); if (!el) return;
+  el.visible = !el.visible; renderEl(el); renderLayers();
+}
+function elIcon(t) {
+  return {frame:'⬜',label:'🔤',button:'🔲',textbox:'📝',image:'🖼',toggle:'🔘',scroll:'📜',close:'✕',progress:'▬',notif:'🔔',separator:'─',badge:'🏷'}[t]||'📦';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DELETE / DUPLICATE / Z
+═══════════════════════════════════════════════════════════════ */
+function delEl(id, e) {
+  if (e) e.stopPropagation();
+  SFX.pop();
+  els = els.filter(el=>el.id!==id);
+  const d = document.getElementById('ge-'+id); if (d) d.remove();
+  selId = null;
+  document.getElementById('prop-el-name').textContent='';
+  document.getElementById('props').innerHTML='<div style="color:var(--text3);font-size:11px;text-align:center;padding:28px 0">Select an element</div>';
+  renderLayers(); updateCode();
+}
+function dupEl(id) {
+  SFX.click();
+  const el = els.find(e=>e.id===id); if (!el) return;
+  const copy = JSON.parse(JSON.stringify(el));
+  copy.id = ++elCtr; copy.name = el.name+'_copy'; copy.x+=16; copy.y+=16;
+  els.push(copy); renderEl(copy); renderLayers(); selectEl(copy.id); updateCode();
+}
+function bringFront(id) {
+  const el = els.find(e=>e.id===id); if (!el) return;
+  el.zIndex = Math.max(...els.map(e=>e.zIndex))+1; renderEl(el);
+}
+function sendBack(id) {
+  const el = els.find(e=>e.id===id); if (!el) return;
+  el.zIndex = Math.max(1, Math.min(...els.map(e=>e.zIndex))-1); renderEl(el);
+}
+function clearCanvas() {
+  if (els.length && !confirm('Clear all elements?')) return;
+  els.forEach(el => { const d=document.getElementById('ge-'+el.id); if(d) d.remove(); });
+  els = []; selId = null; renderLayers(); updateCode();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CODE GENERATION
+═══════════════════════════════════════════════════════════════ */
+function genLua() {
+  const lines = [];
+  const L = (s='') => lines.push(s);
+
+  L('-- ╔══════════════════════════════════════╗');
+  L('-- ║   Generated by RobloxGUI Studio Pro  ║');
+  L('-- ╚══════════════════════════════════════╝');
+  L();
+  L('local Players      = game:GetService("Players")');
+  L('local TweenService = game:GetService("TweenService")');
+  L('local SoundService = game:GetService("SoundService")');
+  L('local RunService   = game:GetService("RunService")');
+  L('local LocalPlayer  = Players.LocalPlayer');
+  L('local PlayerGui    = LocalPlayer:WaitForChild("PlayerGui")');
+  L();
+  L('-- ── ScreenGui ──────────────────────────');
+  L('local ScreenGui = Instance.new("ScreenGui")');
+  L('ScreenGui.Name            = "MyGUI"');
+  L('ScreenGui.ResetOnSpawn    = false');
+  L('ScreenGui.ZIndexBehavior  = Enum.ZIndexBehavior.Sibling');
+  L('ScreenGui.Parent          = PlayerGui');
+  L();
+
+  // Sound helper
+  const usedSounds = new Set();
+  els.forEach(el => {
+    ['soundClick','soundHover','soundOpen'].forEach(k => {
+      if (el[k] && el[k] !== 'none') usedSounds.add(el[k]);
+    });
+  });
+  if (usedSounds.size > 0) {
+    L('-- ── Sound IDs (replace with your own rbxassetid) ──');
+    const SOUND_IDS = {
+      click:'6042053626',success:'5785993714',error:'9119713951',
+      open:'6042053626',close:'9119713951',hover:'6042053626',
+      coin:'4112075131',whoosh:'6042053626',pop:'4612375955',
+      ding:'1610796609',levelup:'3202838660',notification:'3740698399'
+    };
+    usedSounds.forEach(s => {
+      if (SOUND_IDS[s]) {
+        L(`local SFX_${s.toUpperCase()} = Instance.new("Sound")`);
+        L(`SFX_${s.toUpperCase()}.SoundId = "rbxassetid://${SOUND_IDS[s]}"`);
+        L(`SFX_${s.toUpperCase()}.Volume  = 0.5`);
+        L(`SFX_${s.toUpperCase()}.Parent  = SoundService`);
+      }
+    });
+    L();
+  }
+
+  els.forEach(el => {
+    const inst = {frame:'Frame',label:'TextLabel',button:'TextButton',textbox:'TextBox',
+      image:'ImageLabel',toggle:'Frame',scroll:'ScrollingFrame',close:'TextButton',
+      progress:'Frame',notif:'Frame',separator:'Frame',badge:'TextLabel'}[el.type]||'Frame';
+    L(`-- ── ${el.name} ──`);
+    L(`local ${el.name} = Instance.new("${inst}")`);
+    L(`${el.name}.Name     = "${el.name}"`);
+    L(`${el.name}.Size     = UDim2.new(0, ${el.w}, 0, ${el.h})`);
+    L(`${el.name}.Position = UDim2.new(0, ${el.x}, 0, ${el.y})`);
+    L(`${el.name}.ZIndex   = ${el.zIndex}`);
+    if (!el.visible) L(`${el.name}.Visible  = false`);
+
+    if (['label','button','close','badge'].includes(el.type)) {
+      const txt = el.text || (el.type==='close'?'✕':'');
+      L(`${el.name}.Text          = "${txt}"`);
+      L(`${el.name}.TextSize      = ${el.fontSize||14}`);
+      L(`${el.name}.Font          = Enum.Font.GothamBold`);
+      L(`${el.name}.TextColor3    = Color3.fromHex("${toHex(el.color||'#fff').replace('#','')}")`);
+    }
+    if (el.bg && el.bg !== 'transparent' && !el.bg.includes('gradient')) {
+      const h = toHex(el.bg); if (h.startsWith('#'))
+      L(`${el.name}.BackgroundColor3 = Color3.fromHex("${h.replace('#','')}")`);
+    } else {
+      L(`${el.name}.BackgroundTransparency = 1`);
+    }
+    if (el.radius) {
+      L(`local ${el.name}_corner = Instance.new("UICorner")`);
+      L(`${el.name}_corner.CornerRadius = UDim.new(0, ${el.radius})`);
+      L(`${el.name}_corner.Parent = ${el.name}`);
+    }
+    if (el.type==='textbox') {
+      L(`${el.name}.PlaceholderText  = "${el.placeholder||''}"`);
+      L(`${el.name}.PlaceholderColor3 = Color3.fromHex("888888")`);
+      L(`${el.name}.TextColor3       = Color3.fromHex("ffffff")`);
+      L(`${el.name}.ClearTextOnFocus = false`);
+    }
+    if (el.type==='image' && el.imageId) L(`${el.name}.Image = "${el.imageId}"`);
+    if (el.type==='progress') {
+      const pct = (el.value||0)/100;
+      L(`local ${el.name}_fill = Instance.new("Frame")`);
+      L(`${el.name}_fill.Size = UDim2.new(${pct}, 0, 1, 0)`);
+      L(`${el.name}_fill.BackgroundColor3 = Color3.fromHex("${toHex(el.barColor||'#4f46e5').replace('#','')}")`);
+      L(`${el.name}_fill.BorderSizePixel = 0`);
+      L(`${el.name}_fill.Parent = ${el.name}`);
+    }
+
+    L(`${el.name}.Parent = ScreenGui`);
+
+    // Tween on open
+    if (el.tween && el.tween !== 'none') {
+      L();
+      L(`-- Tween: ${el.tween}`);
+      if (el.tween === 'fade') {
+        L(`${el.name}.BackgroundTransparency = 1`);
+        L(`TweenService:Create(${el.name}, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()`);
+      } else if (el.tween === 'slide-down') {
+        L(`${el.name}.Position = UDim2.new(0, ${el.x}, 0, ${el.y-40})`);
+        L(`TweenService:Create(${el.name}, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {Position = UDim2.new(0, ${el.x}, 0, ${el.y})}):Play()`);
+      } else if (el.tween === 'scale-in') {
+        L(`${el.name}.Size = UDim2.new(0, 0, 0, 0)`);
+        L(`${el.name}.AnchorPoint = Vector2.new(0.5, 0.5)`);
+        L(`TweenService:Create(${el.name}, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, ${el.w}, 0, ${el.h})}):Play()`);
+      }
+    }
+
+    // Click script + sound
+    if (['button','close','toggle'].includes(el.type)) {
+      L();
+      const evt = el.type==='toggle' ? 'MouseButton1Click' : 'MouseButton1Click';
+      const sndLine = el.soundClick && el.soundClick !== 'none'
+        ? `  SFX_${el.soundClick.toUpperCase()}:Play()` : '';
+      if (el.script || sndLine) {
+        L(`${el.name}.${evt}:Connect(function()`);
+        if (sndLine) L(sndLine);
+        if (el.script) el.script.split('\n').forEach(line => L('  '+line));
+        L(`end)`);
+      }
+    }
+    L();
+  });
+
+  return lines.join('\n');
+}
+
+function updateCode() {
+  document.getElementById('code-out').innerHTML = hlLua(genLua());
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SYNTAX HIGHLIGHT
+═══════════════════════════════════════════════════════════════ */
+function hlLua(code) {
+  return code
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/(--[^\n]*)/g,'<span class="cmt">$1</span>')
+    .replace(/\b(local|function|end|if|then|else|elseif|return|for|do|while|repeat|until|and|or|not|in|true|false|nil)\b/g,'<span class="kw">$1</span>')
+    .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g,'<span class="str">$1</span>')
+    .replace(/\b(\d+\.?\d*)\b/g,'<span class="num">$1</span>')
+    .replace(/\b(Instance\.new|game|Players|workspace|TweenService|SoundService|RunService|Enum|Vector2|UDim2|Color3|TweenInfo)\b/g,'<span class="fn">$1</span>');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CANVAS CONTROLS
+═══════════════════════════════════════════════════════════════ */
+function setSize(w, h, btn) {
+  const s = document.getElementById('roblox-screen');
+  s.style.width = w+'px'; s.style.height = h+'px';
+  document.getElementById('size-lbl').textContent = `${w}×${h}`;
+  document.querySelectorAll('.sz-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function doZoom(d) {
+  if (d === 0) zoom = 100;
+  else zoom = Math.max(25, Math.min(200, zoom+d));
+  document.getElementById('roblox-screen').style.transform = `scale(${zoom/100})`;
+  document.getElementById('zoom-lbl').textContent = zoom+'%';
+}
+function toggleGrid(cb) {
+  document.getElementById('cv-wrap').style.backgroundImage = cb.checked
+    ? 'radial-gradient(circle,rgba(255,255,255,.025) 1px,transparent 1px)'
+    : 'none';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════════════════════════ */
+function mainTab(tab, el) {
+  document.querySelectorAll('.htab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if (tab==='code') btmTab('editor', document.querySelectorAll('.btab')[1]);
+  if (tab==='preview') { toast('Preview mode: elements are interactive!'); }
+}
+function btmTab(id, el) {
+  document.querySelectorAll('.btab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.bpanel').forEach(p=>p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const p = document.getElementById('bp-'+id); if (p) p.classList.add('active');
+  if (id==='view') updateCode();
+  if (id==='sound') buildSoundPanel();
+  if (id==='anim') buildAnimPanel();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SOUND PANEL
+═══════════════════════════════════════════════════════════════ */
+function buildSoundPanel() {
+  const L = document.getElementById('sound-presets-list'); L.innerHTML='';
+  SOUND_PRESETS.filter(s=>s.id!=='none').forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'sound-preset';
+    d.innerHTML = `<span style="font-size:16px">${s.icon}</span><div style="flex:1"><div style="font-size:11px;font-weight:600">${s.name}</div><div style="font-size:10px;color:var(--text3)">${s.desc}</div></div><button class="btn" style="font-size:10px;padding:3px 8px" onclick="playSound('${s.id}');this.textContent='▶';setTimeout(()=>this.textContent='Test',800)">Test</button>`;
+    L.appendChild(d);
+  });
+  const el = els.find(e=>e.id===selId);
+  updateSoundConfigPanel(el);
+}
+
+function updateSoundConfigPanel(el) {
+  const P = document.getElementById('sound-config-panel'); if (!P) return;
+  if (!el) { P.innerHTML = '<div style="color:var(--text3);font-size:11px">Select an element first</div>'; return; }
+  P.innerHTML = `
+    <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:8px">${elIcon(el.type)} ${el.name}</div>
+    ${soundSelectRow(el,'soundClick','On Click')}
+    ${soundSelectRow(el,'soundHover','On Hover')}
+    ${['frame','scroll','notif'].includes(el.type) ? soundSelectRow(el,'soundOpen','On Open') : ''}
+    <button class="btn" style="margin-top:8px;font-size:10px;width:100%" onclick="testElSounds(${el.id})">▶ Preview</button>
+  `;
+}
+function soundSelectRow(el, key, label) {
+  return `<div class="prop-row" style="margin-bottom:6px">
+    <div class="prop-label">${label}</div>
+    <select class="prop-sel" onchange="sp(${el.id},'${key}',this.value)">
+      ${SOUND_PRESETS.map(s=>`<option value="${s.id}" ${el[key]===s.id?'selected':''}>${s.icon} ${s.name}</option>`).join('')}
+    </select>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATION PANEL
+═══════════════════════════════════════════════════════════════ */
+const ANIMS = [
+  {id:'none',label:'None'},
+  {id:'rainbow',label:'🌈 Rainbow'},
+  {id:'pulse',label:'💓 Pulse'},
+  {id:'float',label:'🌊 Float'},
+  {id:'shimmer',label:'✨ Shimmer'},
+];
+const TWEENS = [
+  {id:'none',label:'None'},
+  {id:'fade',label:'Fade In'},
+  {id:'slide-down',label:'Slide Down'},
+  {id:'scale-in',label:'Scale In'},
+];
+
+function buildAnimPanel() {
+  const AB = document.getElementById('anim-btns'); AB.innerHTML='';
+  ANIMS.forEach(a => {
+    const b = document.createElement('button');
+    const el = els.find(e=>e.id===selId);
+    b.className = 'anim-btn' + (el && el.anim===a.id ? ' active':'');
+    b.textContent = a.label;
+    b.onclick = () => {
+      if (!selId) { toast('Select an element first!'); return; }
+      sp(selId,'anim',a.id); re(selId);
+      buildAnimPanel();
+    };
+    AB.appendChild(b);
+  });
+  const TB = document.getElementById('tween-btns'); TB.innerHTML='';
+  TWEENS.forEach(a => {
+    const b = document.createElement('button');
+    const el = els.find(e=>e.id===selId);
+    b.className = 'anim-btn' + (el && el.tween===a.id ? ' active':'');
+    b.textContent = a.label;
+    b.onclick = () => {
+      if (!selId) { toast('Select an element first!'); return; }
+      sp(selId,'tween',a.id); updateCode();
+      buildAnimPanel();
+    };
+    TB.appendChild(b);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCRIPTS
+═══════════════════════════════════════════════════════════════ */
+function openScriptModal(id) {
+  scriptElId = id;
+  const el = els.find(e=>e.id===id); if (!el) return;
+  document.getElementById('script-modal-title').textContent = `Script — ${el.name}`;
+  document.getElementById('script-ta').value = el.script || defaultScript(el.type);
+  openModal('script-modal');
+}
+function defaultScript(type) {
+  if (type==='button') return `print("${type} clicked!")\n-- Add your code here`;
+  if (type==='close') return `-- Close the GUI\nscript.Parent.Parent.Parent.Enabled = false`;
+  return `-- ${type} script`;
+}
+function saveScript() {
+  const el = els.find(e=>e.id===scriptElId); if (!el) return;
+  el.script = document.getElementById('script-ta').value;
+  closeModal('script-modal'); updateCode(); showProps(el);
+  clog(`Script saved for <span style="color:var(--warn)">${el.name}</span>`);
+  SFX.success();
+  toast('Script saved!');
+}
+const SNIPPETS = {
+  click: `-- MouseButton1Click handler (auto-connected in generated code)\nprint("Clicked!")`,
+  tween: `-- Tween example\nlocal info = TweenInfo.new(0.3, Enum.EasingStyle.Quint)\nlocal goal = {BackgroundTransparency = 0}\nTweenService:Create(script.Parent, info, goal):Play()`,
+  sound: `-- Play a sound\nlocal sound = Instance.new("Sound")\nsound.SoundId = "rbxassetid://6042053626"\nsound.Volume = 0.5\nsound.Parent = workspace\nsound:Play()\ngame:GetService("Debris"):AddItem(sound, 3)`,
+  close: `-- Close / hide the ScreenGui\nlocal gui = script.Parent\nwhile gui and gui.ClassName ~= "ScreenGui" do gui = gui.Parent end\nif gui then gui.Enabled = false end`,
+  notify: `-- Send a notification\ngame:GetService("StarterGui"):SetCore("SendNotification", {\n  Title = "Notice",\n  Text  = "Hello, player!",\n  Duration = 3\n})`,
+  remote: `-- Fire a RemoteEvent\nlocal RE = game.ReplicatedStorage:WaitForChild("MyEvent")\nRE:FireServer("data_here")`,
+};
+function snippet(key) {
+  const ta = document.getElementById('script-ta');
+  const pos = ta.selectionStart;
+  const s = SNIPPETS[key] || '';
+  ta.value = ta.value.slice(0,pos) + (pos>0?'\n':'') + s + ta.value.slice(pos);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPORT / SAVE / LOAD
+═══════════════════════════════════════════════════════════════ */
+function exportLua() {
+  SFX.success();
+  const code = genLua();
+  const blob = new Blob([code], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'MyGUI.lua'; a.click();
+  clog('✓ Exported <span style="color:var(--success)">MyGUI.lua</span>');
+  toast('Exported MyGUI.lua ✓');
+}
+function saveProject() {
+  SFX.success();
+  try {
+    localStorage.setItem('rgstudio_v2', JSON.stringify({els, elCtr}));
+    toast('Project saved ✓'); clog('✓ Project saved');
+  } catch(e) { toast('Save failed (storage full?)'); }
+}
+function loadProject() {
+  try {
+    const raw = localStorage.getItem('rgstudio_v2'); if (!raw) return;
+    const d = JSON.parse(raw);
+    clearCanvas();
+    els = d.els; elCtr = d.elCtr;
+    els.forEach(el => renderEl(el));
+    renderLayers(); updateCode();
+    clog('✓ Project loaded from storage');
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CODE EDITOR
+═══════════════════════════════════════════════════════════════ */
+function fmtCode() {
+  const ta = document.getElementById('editor-ta');
+  let lines = ta.value.split('\n'); let indent = 0;
+  lines = lines.map(l => {
+    const t = l.trim();
+    if (/^(end|else|elseif|until)/.test(t)) indent = Math.max(0,indent-1);
+    const r = '\t'.repeat(indent) + t;
+    if (/(then|do|repeat|else|elseif)\s*$/.test(t) || /function[^(]*\(/.test(t)) indent++;
+    return r;
+  });
+  ta.value = lines.join('\n');
+}
+function copyCode() {
+  const ta = document.getElementById('editor-ta');
+  navigator.clipboard.writeText(ta.value).then(()=>toast('Copied!')).catch(()=>{});
+}
+function updateLineCount(ta) {
+  const lines = ta.value.split('\n').length;
+  document.getElementById('editor-line-count').textContent = `${lines} line${lines!==1?'s':''}`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PASTE
+═══════════════════════════════════════════════════════════════ */
+function applyPaste() {
+  const code = document.getElementById('paste-ta').value;
+  document.getElementById('editor-ta').value = code;
+  updateLineCount(document.getElementById('editor-ta'));
+  closeModal('paste-modal');
+  btmTab('editor', document.querySelectorAll('.btab')[1]);
+  toast('Pasted into editor ✓');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PREMADE GUIs
+═══════════════════════════════════════════════════════════════ */
+function loadPremade(type) {
+  SFX.open();
+  const G = {
+    inventory: [
+      {type:'frame',x:10,y:10,w:210,h:190,gradient:'linear-gradient(135deg,#0f0f2e,#1e1450)',radius:10,soundOpen:'open'},
+      {type:'label',x:20,y:16,w:150,h:26,text:'🎒 Inventory',color:'#a0a0ff',fontSize:14,fontFamily:'Rajdhani',bg:'transparent',bold:true,align:'left'},
+      {type:'close',x:186,y:16,w:22,h:22,soundClick:'close'},
+      {type:'frame',x:20,y:48,w:52,h:52,bg:'rgba(255,255,255,.05)',radius:7},
+      {type:'frame',x:80,y:48,w:52,h:52,bg:'rgba(255,255,255,.05)',radius:7},
+      {type:'frame',x:140,y:48,w:52,h:52,bg:'rgba(255,255,255,.05)',radius:7},
+      {type:'frame',x:20,y:110,w:52,h:52,bg:'rgba(255,255,255,.05)',radius:7},
+      {type:'frame',x:80,y:110,w:52,h:52,bg:'rgba(255,255,255,.05)',radius:7},
+      {type:'frame',x:140,y:110,w:52,h:52,bg:'rgba(255,255,255,.05)',radius:7},
+      {type:'separator',x:20,y:170,w:178,h:2},
+      {type:'label',x:20,y:174,w:178,h:18,text:'6 / 18 slots',color:'rgba(255,255,255,.4)',fontSize:10,fontFamily:'Outfit',bg:'transparent',align:'center'},
+    ],
+    shop: [
+      {type:'frame',x:10,y:10,w:230,h:220,gradient:'linear-gradient(135deg,#051a05,#0a2e0a)',radius:10,soundOpen:'open'},
+      {type:'label',x:20,y:16,w:160,h:26,text:'🏪 Shop',color:'#5dde5d',fontSize:15,fontFamily:'Rajdhani',bg:'transparent',bold:true,align:'left'},
+      {type:'close',x:200,y:16,w:22,h:22,soundClick:'close'},
+      {type:'label',x:20,y:46,w:80,h:14,text:'💰 Coins:',color:'rgba(255,255,255,.5)',fontSize:10,fontFamily:'Outfit',bg:'transparent',align:'left'},
+      {type:'label',x:100,y:46,w:60,h:14,text:'1,250',color:'#ffd700',fontSize:10,fontFamily:'Rajdhani',bg:'transparent',align:'left',bold:true},
+      {type:'separator',x:20,y:64,w:198,h:1},
+      {type:'button',x:20,y:74,w:198,h:36,text:'⚔️ Sword  —  100 💰',bg:'rgba(22,101,52,.8)',color:'#fff',radius:6,fontSize:11,script:'print("Bought Sword")',soundClick:'coin'},
+      {type:'button',x:20,y:118,w:198,h:36,text:'🛡 Shield  —  75 💰',bg:'rgba(22,101,52,.8)',color:'#fff',radius:6,fontSize:11,script:'print("Bought Shield")',soundClick:'coin'},
+      {type:'button',x:20,y:162,w:198,h:36,text:'🧪 Potion  —  25 💰',bg:'rgba(22,101,52,.8)',color:'#fff',radius:6,fontSize:11,script:'print("Bought Potion")',soundClick:'coin'},
+    ],
+    settings: [
+      {type:'frame',x:10,y:10,w:220,h:210,gradient:'linear-gradient(135deg,#1a0505,#2e0a0a)',radius:10,soundOpen:'open'},
+      {type:'label',x:20,y:16,w:150,h:26,text:'⚙️ Settings',color:'#ff9999',fontSize:14,fontFamily:'Rajdhani',bg:'transparent',bold:true,align:'left'},
+      {type:'close',x:192,y:16,w:22,h:22,soundClick:'close'},
+      {type:'separator',x:20,y:46,w:188,h:1},
+      {type:'toggle',x:20,y:56,w:185,h:26,label:'🎵 Music',toggled:true,onColor:'#dc2626',soundClick:'click'},
+      {type:'toggle',x:20,y:90,w:185,h:26,label:'🔊 Sound FX',toggled:true,onColor:'#dc2626',soundClick:'click'},
+      {type:'toggle',x:20,y:124,w:185,h:26,label:'📳 Vibration',toggled:false,onColor:'#dc2626',soundClick:'click'},
+      {type:'toggle',x:20,y:158,w:185,h:26,label:'🔔 Notifications',toggled:true,onColor:'#dc2626',soundClick:'click'},
+      {type:'button',x:20,y:192,w:188,h:22,text:'Save Settings',bg:'#7f1d1d',color:'#fff',radius:5,fontSize:11,script:'print("Settings saved")',soundClick:'success'},
+    ],
+    hud: [
+      {type:'frame',x:8,y:8,w:180,h:30,bg:'rgba(0,0,0,.55)',radius:15},
+      {type:'progress',x:12,y:16,w:90,h:12,value:78,barColor:'#ef4444',bgColor:'rgba(255,255,255,.1)',radius:6},
+      {type:'label',x:106,y:8,w:76,h:30,text:'❤️ 78 / 100',color:'#fca5a5',fontSize:10,fontFamily:'Outfit',bg:'transparent',align:'left'},
+      {type:'frame',x:8,y:46,w:180,h:30,bg:'rgba(0,0,0,.55)',radius:15},
+      {type:'progress',x:12,y:54,w:90,h:12,value:55,barColor:'#3b82f6',bgColor:'rgba(255,255,255,.1)',radius:6},
+      {type:'label',x:106,y:46,w:76,h:30,text:'🔵 55 / 100',color:'#93c5fd',fontSize:10,fontFamily:'Outfit',bg:'transparent',align:'left'},
+      {type:'label',x:290,y:8,w:150,h:30,text:'💰 1,250',color:'#ffd700',fontSize:14,fontFamily:'Rajdhani',bg:'rgba(0,0,0,.5)',align:'center',bold:true},
+      {type:'badge',x:290,y:46,w:60,h:20,text:'LEVEL 12',bg:'#7c3aed',color:'#fff',radius:10,fontSize:9,bold:true},
+    ],
+    popup: [
+      {type:'frame',x:90,y:70,w:300,h:160,gradient:'linear-gradient(135deg,#1c0e05,#2e1a08)',radius:12,soundOpen:'open'},
+      {type:'label',x:100,y:82,w:280,h:28,text:'⚠️ Confirm Action',color:'#fbbf24',fontSize:14,fontFamily:'Rajdhani',bg:'transparent',bold:true,align:'center'},
+      {type:'label',x:100,y:114,w:280,h:34,text:'This cannot be undone. Are you sure?',color:'rgba(255,255,255,.65)',fontSize:11,fontFamily:'Outfit',bg:'transparent',align:'center'},
+      {type:'close',x:364,y:76,w:22,h:22,soundClick:'close'},
+      {type:'button',x:106,y:154,w:100,h:30,text:'Cancel',bg:'rgba(255,255,255,.08)',color:'#fff',radius:6,fontSize:11,script:'print("Cancelled")',soundClick:'click'},
+      {type:'button',x:214,y:154,w:100,h:30,text:'✓ Confirm',bg:'#dc2626',color:'#fff',radius:6,fontSize:11,script:'print("Confirmed!")',soundClick:'success'},
+    ],
+    leaderboard: [
+      {type:'frame',x:10,y:10,w:210,h:240,gradient:'linear-gradient(135deg,#100f00,#1f1e00)',radius:10,soundOpen:'ding'},
+      {type:'label',x:20,y:16,w:170,h:28,text:'🏆 Leaderboard',color:'#ffd700',fontSize:14,fontFamily:'Rajdhani',bg:'transparent',bold:true,align:'center'},
+      {type:'close',x:184,y:16,w:22,h:22,soundClick:'close'},
+      {type:'separator',x:20,y:48,w:178,h:1},
+      ...['🥇 Player1  —  1,250 pts','🥈 Player2  —  980 pts','🥉 Player3  —  742 pts','4th Player4  —  600 pts','5th Player5  —  444 pts','6th Player6  —  312 pts'].map((t,i)=>({
+        type:'label',x:20,y:54+i*30,w:178,h:26,text:t,color:i<3?'#ffd700':'rgba(255,255,255,.65)',fontSize:11,fontFamily:'Outfit',bg:i%2?'rgba(255,255,255,.03)':'transparent',align:'left'
+      }))
+    ],
+    navbar: [
+      {type:'frame',x:8,y:8,w:464,h:44,bg:'rgba(10,10,25,.95)',radius:22},
+      {type:'label',x:20,y:8,w:100,h:44,text:'🎮 MyGame',color:'#fff',fontSize:13,fontFamily:'Rajdhani',bg:'transparent',align:'left',bold:true},
+      {type:'button',x:130,y:14,w:70,h:30,text:'Home',bg:'rgba(255,255,255,.1)',color:'#fff',radius:15,fontSize:11,soundClick:'click'},
+      {type:'button',x:208,y:14,w:70,h:30,text:'Shop',bg:'rgba(255,255,255,.05)',color:'rgba(255,255,255,.6)',radius:15,fontSize:11,soundClick:'click'},
+      {type:'button',x:286,y:14,w:70,h:30,text:'Profile',bg:'rgba(255,255,255,.05)',color:'rgba(255,255,255,.6)',radius:15,fontSize:11,soundClick:'click'},
+      {type:'label',x:370,y:8,w:90,h:44,text:'💰 1,250',color:'#ffd700',fontSize:12,fontFamily:'Rajdhani',bg:'transparent',align:'right',bold:true},
+    ],
+    dialog: [
+      {type:'frame',x:60,y:60,w:360,h:180,gradient:'linear-gradient(135deg,#150020,#250040)',radius:12,soundOpen:'open'},
+      {type:'image',x:74,y:74,w:52,h:52,bg:'rgba(139,92,246,.2)',radius:26},
+      {type:'label',x:134,y:72,w:240,h:22,text:'Mysterious Merchant',color:'#c4b5fd',fontSize:13,fontFamily:'Rajdhani',bg:'transparent',align:'left',bold:true},
+      {type:'label',x:134,y:96,w:240,h:40,text:'"Greetings, adventurer! I have rare items available for trade..."',color:'rgba(255,255,255,.75)',fontSize:10,fontFamily:'Outfit',bg:'transparent',align:'left'},
+      {type:'button',x:74,y:156,w:110,h:28,text:'Continue →',bg:'#6d28d9',color:'#fff',radius:6,fontSize:11,soundClick:'click'},
+      {type:'button',x:192,y:156,w:110,h:28,text:'Trade Items',bg:'rgba(255,255,255,.08)',color:'#fff',radius:6,fontSize:11,soundClick:'click'},
+      {type:'close',x:396,y:68,w:22,h:22,soundClick:'close'},
+    ],
+  };
+
+  const items = G[type] || [];
+  items.forEach(props => {
+    const base = mkEl(props.type);
+    const el = {...base, ...props, id: ++elCtr, name: props.type+elCtr};
+    els.push(el); renderEl(el);
+  });
+  renderLayers(); updateCode();
+  clog(`✓ Loaded <span style="color:var(--accent)">${type}</span> template`);
+  toast(`Template "${type}" loaded!`);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FONTS
+═══════════════════════════════════════════════════════════════ */
+const PREMADE_FONTS = [
+  {name:'Outfit',url:'https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap'},
+  {name:'Rajdhani',url:'https://fonts.googleapis.com/css2?family=Rajdhani:wght@600&display=swap'},
+  {name:'Orbitron',url:'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap'},
+  {name:'Press Start 2P',url:'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap'},
+  {name:'Russo One',url:'https://fonts.googleapis.com/css2?family=Russo+One&display=swap'},
+  {name:'Exo 2',url:'https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap'},
+  {name:'Audiowide',url:'https://fonts.googleapis.com/css2?family=Audiowide&display=swap'},
+  {name:'Chakra Petch',url:'https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap'},
+  {name:'Titillium Web',url:'https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;700&display=swap'},
+  {name:'Share Tech Mono',url:'https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap'},
+  {name:'Bungee',url:'https://fonts.googleapis.com/css2?family=Bungee&display=swap'},
+  {name:'Black Ops One',url:'https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap'},
+];
+function getAllFonts() {
+  return [...PREMADE_FONTS.map(f=>f.name), ...customFonts.map(f=>f.name)];
+}
+function buildFontList() {
+  const L = document.getElementById('font-list'); L.innerHTML='';
+  PREMADE_FONTS.forEach(f => {
+    const d = document.createElement('div'); d.className='font-item';
+    d.style.fontFamily = f.name;
+    d.innerHTML = `<span>${f.name}</span><button class="btn" style="font-size:10px;padding:3px 8px" onclick="loadFont('${f.name}','${f.url}')">Load</button>`;
+    L.appendChild(d);
+  });
+}
+function loadFont(name, url) {
+  if (!document.querySelector(`link[href="${url}"]`)) {
+    const l = document.createElement('link'); l.rel='stylesheet'; l.href=url; document.head.appendChild(l);
+  }
+  if (!customFonts.find(f=>f.name===name)) customFonts.push({name,url});
+  toast(`Font "${name}" loaded!`);
+  clog(`✓ Font <span style="color:var(--accent)">${name}</span> imported`);
+}
+function importFont() {
+  const v = document.getElementById('font-url-inp').value.trim(); if (!v) return;
+  let url = v, name = 'Custom Font';
+  if (v.includes('fonts.googleapis.com')) {
+    const m = v.match(/family=([^&:+]+)/);
+    if (m) name = decodeURIComponent(m[1].replace(/\+/g,' '));
+    url = v;
+  } else {
+    name = v;
+    url = `https://fonts.googleapis.com/css2?family=${v.replace(/ /g,'+')}&display=swap`;
+  }
+  loadFont(name, url);
+  document.getElementById('font-url-inp').value='';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AI
+═══════════════════════════════════════════════════════════════ */
+let aiHistory = [];
+function openAI() {
+  document.getElementById('ai-overlay').classList.add('open');
+  SFX.open();
+  if (document.getElementById('ai-msgs').children.length === 0) {
+    addAIMsg('bot', `👋 **Welcome to AI Script Designer!**\n\nI generate complete Roblox Lua GUI scripts. Try asking:\n• *"Create a shop GUI with 3 items, animations, and sounds"*\n• *"Make a HUD with health bar and coin counter"*\n• *"Build a settings menu with toggles and a save button"*\n\nI'll generate clean, production-ready Lua code for you!`);
+    aiLog('✅ AI initialized', 'var(--success)');
+    aiLog('Model: claude-sonnet-4-20250514', 'var(--accent)');
+    aiLog('Ready for requests', 'var(--text2)');
+  }
+}
+function closeAI() {
+  document.getElementById('ai-overlay').classList.remove('open');
+  SFX.close();
+}
+function addAIMsg(role, text) {
+  const c = document.getElementById('ai-msgs');
+  const d = document.createElement('div');
+  d.className = `ai-msg ${role} slide-in`;
+  // Basic markdown: **bold**, `code`, ```blocks```
+  let html = text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/```(?:lua)?\n([\s\S]+?)```/g, (_, code) => `<pre>${code}</pre>`)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+  d.innerHTML = html;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+function aiLog(text, color='var(--text2)') {
+  const A = document.getElementById('ai-activity');
+  const d = document.createElement('div');
+  d.className='activity-line';
+  d.innerHTML = `<span class="al-icon" style="color:${color}">›</span><span style="color:${color}">${text}</span>`;
+  A.appendChild(d);
+  A.scrollTop = A.scrollHeight;
+}
+function aiKey(e) { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); aiSend(); } }
+
+async function aiSend() {
+  const ta = document.getElementById('ai-textarea');
+  const msg = ta.value.trim(); if (!msg) return;
+  ta.value = '';
+  addAIMsg('user', msg);
+  aiHistory.push({role:'user', content: msg});
+
+  const thinking = document.getElementById('ai-thinking');
+  const thinkTxt = document.getElementById('ai-think-txt');
+  thinking.classList.add('show');
+  document.getElementById('ai-activity').innerHTML = '';
+  document.getElementById('ai-code-prev').style.display = 'none';
+
+  aiLog('📨 Sending request...', 'var(--text2)');
+  aiLog('🔗 Connecting to Claude API', 'var(--accent)');
+
+  const steps = [
+    [400,  'Analyzing GUI requirements...'],
+    [900,  'Planning element structure...'],
+    [1600, 'Writing Lua code...'],
+    [2400, 'Adding sound & tween support...'],
+    [3100, 'Finalizing script...'],
+  ];
+  const timers = steps.map(([delay, msg]) => setTimeout(() => {
+    thinkTxt.textContent = msg;
+    aiLog(msg, 'var(--text2)');
+  }, delay));
+
+  const SYS = `You are an expert Roblox Lua GUI developer. Generate complete, working LocalScript code for Roblox Studio.
+
+RULES:
+- Always use Instance.new() properly
+- Use UDim2.new() for Size/Position
+- Use Color3.fromHex() or Color3.fromRGB() for colors
+- Use TweenService for all animations
+- Add UICorner for rounded corners
+- Include SoundService sounds where appropriate
+- Use Enum.Font.GothamBold for buttons
+- Always parent to PlayerGui ScreenGui
+- Add proper UICorner, UIPadding where needed
+- Include open/close animations with TweenService
+- Structure code cleanly with comments
+- Generate COMPLETE, RUNNABLE scripts only
+- Use rbxassetid:// sound IDs (use real common ones)
+- All code must be valid Lua 5.1 (Roblox)`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYS,
+        messages: aiHistory
+      })
+    });
+
+    timers.forEach(t => clearTimeout(t));
+    const data = await res.json();
+    thinking.classList.remove('show');
+
+    if (data.error) {
+      aiLog(`❌ API Error: ${data.error.message}`, 'var(--danger)');
+      addAIMsg('bot', `**Error:** ${data.error.message}\n\nMake sure you're using Claude.ai with the API enabled, or check your network.`);
+      SFX.error();
+      return;
+    }
+
+    const reply = data.content.map(b=>b.text||'').join('');
+    aiHistory.push({role:'assistant', content: reply});
+
+    aiLog('✅ Response received', 'var(--success)');
+    aiLog(`📊 ${data.usage?.output_tokens||'?'} tokens generated`, 'var(--text2)');
+
+    // Extract code
+    const codeMatch = reply.match(/```(?:lua)?\n([\s\S]+?)```/);
+    if (codeMatch) {
+      aiCodeBuf = codeMatch[1];
+      aiLog(`💾 Lua code extracted (${aiCodeBuf.split('\n').length} lines)`, 'var(--accent)');
+      const prev = document.getElementById('ai-code-prev');
+      prev.style.display = 'block';
+      prev.textContent = aiCodeBuf.slice(0, 600) + (aiCodeBuf.length > 600 ? '\n-- ... (truncated)' : '');
+    } else {
+      aiLog('ℹ️ No code block found in response', 'var(--warn)');
+    }
+
+    addAIMsg('bot', reply);
+    SFX.success();
+  } catch(err) {
+    timers.forEach(t => clearTimeout(t));
+    thinking.classList.remove('show');
+    aiLog(`❌ Network error: ${err.message}`, 'var(--danger)');
+    addAIMsg('bot', `**Connection failed.** This tool uses the Anthropic API.\n\nTo use the AI:\n1. Make sure you're on claude.ai\n2. Or host this file and add an API key proxy\n\n**Error:** \`${err.message}\``);
+    SFX.error();
+  }
+}
+function insertAICode() {
+  if (!aiCodeBuf) { toast('No code yet — ask the AI first!'); return; }
+  document.getElementById('editor-ta').value = aiCodeBuf;
+  updateLineCount(document.getElementById('editor-ta'));
+  closeAI();
+  btmTab('editor', document.querySelectorAll('.btab')[1]);
+  toast('AI code inserted into editor ✓');
+  clog('✓ AI code inserted into editor');
+  SFX.success();
+}
+function copyAICode() {
+  if (!aiCodeBuf) { toast('No code yet!'); return; }
+  navigator.clipboard.writeText(aiCodeBuf).then(()=>toast('AI code copied!')).catch(()=>{});
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODAL / UTILS
+═══════════════════════════════════════════════════════════════ */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Close modals on overlay click
+document.querySelectorAll('.moverlay').forEach(m => {
+  m.addEventListener('click', (e) => { if (e.target === m) closeModal(m.id); });
+});
+
+function toggleSection(hdr) {
+  const body = hdr.nextElementSibling;
+  hdr.classList.toggle('closed');
+  body.classList.toggle('closed');
+}
+
+function toast(msg) {
+  const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(), 2200);
+}
+function clog(html) {
+  const C = document.getElementById('console-out');
+  const d = new Date();
+  const ts = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+  C.innerHTML += `<div><span style="color:var(--text3)">[${ts}]</span> ${html}</div>`;
+  C.scrollTop = C.scrollHeight;
+}
+function toHex(c) {
+  if (!c) return '#000000';
+  if (c.startsWith('#') && c.length >= 7) return c.slice(0,7);
+  if (c.startsWith('#') && c.length === 4) {
+    return '#'+c[1]+c[1]+c[2]+c[2]+c[3]+c[3];
+  }
+  if (c.startsWith('rgb')) {
+    const m = c.match(/[\d.]+/g); if (!m) return '#000000';
+    return '#'+[+m[0],+m[1],+m[2]].map(v=>Math.round(Math.min(255,v)).toString(16).padStart(2,'0')).join('');
+  }
+  return '#000000';
+}
+
+function toggleMob(id) {
+  const p = document.getElementById(id);
+  p.classList.toggle('mob-open');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GRADIENTS
+═══════════════════════════════════════════════════════════════ */
+const GRADIENTS = [
+  'linear-gradient(135deg,#667eea,#764ba2)',
+  'linear-gradient(135deg,#f093fb,#f5576c)',
+  'linear-gradient(135deg,#4facfe,#00f2fe)',
+  'linear-gradient(135deg,#43e97b,#38f9d7)',
+  'linear-gradient(135deg,#fa709a,#fee140)',
+  'linear-gradient(135deg,#a18cd1,#fbc2eb)',
+  'linear-gradient(135deg,#ff9a9e,#fad0c4)',
+  'linear-gradient(135deg,#a1c4fd,#c2e9fb)',
+  'linear-gradient(135deg,#d4fc79,#96e6a1)',
+  'linear-gradient(135deg,#30cfd0,#330867)',
+  'linear-gradient(135deg,#f6d365,#fda085)',
+  'linear-gradient(135deg,#89f7fe,#66a6ff)',
+  'linear-gradient(135deg,#e0c3fc,#8ec5fc)',
+  'linear-gradient(135deg,#0f2027,#203a43,#24243e)',
+  'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)',
+  'linear-gradient(135deg,#2d1b69,#11998e)',
+  'linear-gradient(135deg,#ee0979,#ff6a00)',
+  'linear-gradient(135deg,#00b4db,#0083b0)',
+  'linear-gradient(135deg,#f7971e,#ffd200)',
+  'linear-gradient(135deg,#56ccf2,#2f80ed)',
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   KEYBOARD SHORTCUTS
+═══════════════════════════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  const active = document.activeElement.tagName;
+  if (active==='INPUT'||active==='TEXTAREA') return;
+  if (e.key==='Delete'||e.key==='Backspace') { if(selId) delEl(selId); }
+  if (e.key==='Escape') {
+    selId=null;
+    document.querySelectorAll('.ge').forEach(d=>d.classList.remove('sel'));
+    document.getElementById('prop-el-name').textContent='';
+  }
+  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); saveProject(); }
+  if ((e.ctrlKey||e.metaKey) && e.key==='d') { e.preventDefault(); if(selId) dupEl(selId); }
+  if ((e.ctrlKey||e.metaKey) && e.key==='e') { e.preventDefault(); exportLua(); }
+  if ((e.ctrlKey||e.metaKey) && e.key==='z') { /* undo placeholder */ }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  buildFontList();
+  loadProject();
+  updateCode();
+  clog('✓ <span style="color:var(--accent)">RobloxGUI Studio Pro</span> initialized');
+  clog('Shortcuts: <span style="color:var(--text2)">Del=delete  Ctrl+D=dupe  Ctrl+S=save  Ctrl+E=export</span>');
+});
+</script>
+
+<!-- ══════════════════════════════════════════════════
+     GITHUB HOSTING GUIDE (hidden comment)
+     See the toast/guide button below
+════════════════════════════════════════════════════ -->
+
+<div id="github-guide" class="moverlay">
+  <div class="modal" style="max-width:580px;max-height:85vh;overflow-y:auto">
+    <div class="mhdr">🐙 How to Host on GitHub Pages <button class="mclose" onclick="closeModal('github-guide')">✕</button></div>
+    <div style="font-size:12px;line-height:1.9;color:var(--text2)">
+
+      <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:14px;border-left:3px solid var(--accent)">
+        <strong style="color:var(--text)">GitHub Pages is free</strong> and hosts static HTML files publicly — perfect for this tool.
+      </div>
+
+      <div style="font-weight:700;color:var(--text);margin-bottom:6px">Step 1 — Create a GitHub account</div>
+      <div style="margin-bottom:12px">Go to <code style="background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--accent)">github.com</code> and sign up for a free account if you don't have one.</div>
+
+      <div style="font-weight:700;color:var(--text);margin-bottom:6px">Step 2 — Create a new repository</div>
+      <div style="margin-bottom:12px">Click <strong style="color:var(--text)">New</strong> → name it something like <code style="background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--accent)">roblox-gui-studio</code> → set to <strong>Public</strong> → click <strong>Create repository</strong>.</div>
+
+      <div style="font-weight:700;color:var(--text);margin-bottom:6px">Step 3 — Upload your file</div>
+      <div style="margin-bottom:4px">In your new repo, click <strong style="color:var(--text)">Add file → Upload files</strong></div>
+      <div style="margin-bottom:4px">Upload <code style="background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--accent)">roblox-gui-studio.html</code></div>
+      <div style="margin-bottom:12px">⚠️ <strong style="color:var(--warn)">Rename it to <code style="background:var(--bg3);padding:2px 6px;border-radius:3px">index.html</code></strong> before uploading (or rename after). GitHub Pages serves <code>index.html</code> as the homepage.</div>
+
+      <div style="font-weight:700;color:var(--text);margin-bottom:6px">Step 4 — Enable GitHub Pages</div>
+      <div style="margin-bottom:4px">Go to your repo → <strong style="color:var(--text)">Settings</strong> tab → scroll down to <strong style="color:var(--text)">Pages</strong> (left sidebar)</div>
+      <div style="margin-bottom:4px">Under <em>Source</em>, select <strong style="color:var(--text)">Deploy from a branch</strong></div>
+      <div style="margin-bottom:12px">Branch: <code style="background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--accent)">main</code> / <code style="background:var(--bg3);padding:2px 6px;border-radius:3px;color:var(--accent)">(root)</code> → click <strong>Save</strong></div>
+
+      <div style="font-weight:700;color:var(--text);margin-bottom:6px">Step 5 — Access your site</div>
+      <div style="margin-bottom:4px">After ~1–2 minutes, your site will be live at:</div>
+      <div style="background:var(--bg3);padding:10px 14px;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--success);margin-bottom:12px">
+        https://YOUR-USERNAME.github.io/roblox-gui-studio/
+      </div>
+
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;border-left:3px solid var(--accent2)">
+        <div style="font-weight:700;color:var(--text);margin-bottom:6px">💡 Pro Tips</div>
+        <div>• The <strong>AI feature</strong> requires the Anthropic API. For the AI to work when self-hosted, you need to add an API key. Since this is a client-side app, use a proxy or consider Cloudflare Workers to keep your key secret.</div>
+        <div style="margin-top:6px">• All other features (canvas, code gen, sounds, templates) work offline with zero API needed.</div>
+        <div style="margin-top:6px">• To update: just re-upload <code style="background:var(--bg4);padding:1px 4px;border-radius:2px">index.html</code> and GitHub Pages auto-redeploys.</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px">
+      <button class="btn primary" onclick="window.open('https://github.com/new','_blank')">Open GitHub →</button>
+    </div>
+  </div>
+</div>
+
+<!-- GitHub guide trigger button in header area -->
+<script>
+// Add GitHub guide button to header
+document.addEventListener('DOMContentLoaded', () => {});
+window.addEventListener('load', () => {
+  const hbtns = document.querySelector('.hbtns');
+  const ghBtn = document.createElement('button');
+  ghBtn.className = 'btn';
+  ghBtn.innerHTML = '🐙 GitHub Guide';
+  ghBtn.onclick = () => openModal('github-guide');
+  hbtns.insertBefore(ghBtn, hbtns.firstChild);
+});
+</script>
+
+</body>
+</html>
