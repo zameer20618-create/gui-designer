@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discord Bot Sandbox</title>
+<link href="https://fonts.googleapis.com/css2?family=gg+sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Discord exact color tokens ── */
+:root {
+  --dc-bg:        #313338;
+  --dc-bg2:       #2b2d31;
+  --dc-bg3:       #1e1f22;
+  --dc-bg4:       #232428;
+  --dc-sidebar:   #2b2d31;
+  --dc-channel:   #1e1f22;
+  --dc-input-bg:  #383a40;
+  --dc-input-bg2: #2e3035;
+  --dc-hover:     rgba(255,255,255,.06);
+  --dc-sel:       rgba(88,101,242,.3);
+  --dc-blurple:   #5865f2;
+  --dc-blurple2:  #4752c4;
+  --dc-green:     #23a559;
+  --dc-red:       #f23f43;
+  --dc-yellow:    #f0b232;
+  --dc-text:      #dbdee1;
+  --dc-text2:     #949ba4;
+  --dc-text3:     #6d6f78;
+  --dc-border:    rgba(255,255,255,.06);
+  --dc-mention:   rgba(88,101,242,.15);
+  --dc-mention-b: #5865f2;
+  --dc-embed:     #2b2d31;
+  --dc-embed-b:   #5865f2;
+  --dc-success:   #23a559;
+  --dc-warn:      #f0b232;
+  --dc-error:     #f23f43;
+  --font: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--dc-bg3);color:var(--dc-text);font-size:15px}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2);background-clip:content-box}
+
+/* ── LAYOUT ── */
+#app{display:flex;height:100vh;overflow:hidden}
+
+/* ── SERVER RAIL ── */
+#rail{
+  width:72px;min-width:72px;background:var(--dc-bg3);
+  display:flex;flex-direction:column;align-items:center;
+  padding:12px 0;gap:8px;overflow-y:auto;overflow-x:hidden
+}
+.rail-item{
+  width:48px;height:48px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;transition:border-radius .15s,background .1s;
+  position:relative;font-size:20px;background:var(--dc-bg2);
+  flex-shrink:0;overflow:hidden
+}
+.rail-item:hover,.rail-item.active{border-radius:16px}
+.rail-item.active{background:var(--dc-blurple)}
+.rail-item img{width:100%;height:100%;object-fit:cover}
+.rail-sep{width:32px;height:2px;background:rgba(255,255,255,.1);border-radius:1px;flex-shrink:0}
+.rail-pill{
+  position:absolute;left:-4px;top:50%;transform:translateY(-50%);
+  width:4px;border-radius:0 4px 4px 0;background:#fff;transition:height .15s
+}
+.rail-item:hover .rail-pill{height:20px}
+.rail-item.active .rail-pill{height:40px}
+
+/* ── CHANNEL SIDEBAR ── */
+#sidebar{
+  width:240px;min-width:240px;background:var(--dc-sidebar);
+  display:flex;flex-direction:column;overflow:hidden
+}
+.server-header{
+  height:48px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(0,0,0,.2);font-weight:600;font-size:15px;
+  cursor:pointer;flex-shrink:0
+}
+.server-header:hover{background:var(--dc-hover)}
+.ch-section{padding:16px 8px 4px;font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--dc-text2);display:flex;align-items:center;justify-content:space-between}
+.ch-section span{cursor:pointer;font-size:14px;padding:2px 4px;border-radius:3px}
+.ch-section span:hover{background:var(--dc-hover);color:var(--dc-text)}
+.ch-item{
+  display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:4px;
+  cursor:pointer;color:var(--dc-text2);font-size:15px;transition:background .08s,color .08s;
+  margin:1px 8px;position:relative
+}
+.ch-item:hover{background:var(--dc-hover);color:var(--dc-text)}
+.ch-item.active{background:rgba(255,255,255,.1);color:var(--dc-text)}
+.ch-hash{font-size:20px;color:var(--dc-text3);flex-shrink:0;line-height:1;font-weight:400}
+.ch-name{font-size:15px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-badge{
+  background:var(--dc-red);color:#fff;font-size:10px;font-weight:700;
+  padding:1px 5px;border-radius:8px;min-width:16px;text-align:center
+}
+.sidebar-bottom{
+  margin-top:auto;padding:8px;background:rgba(0,0,0,.2);
+  display:flex;align-items:center;gap:8px;flex-shrink:0
+}
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;background:var(--dc-blurple);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  cursor:pointer;flex-shrink:0;position:relative
+}
+.user-status{
+  position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;
+  border-radius:50%;background:var(--dc-green);border:2px solid var(--dc-bg2)
+}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:600;color:var(--dc-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-tag{font-size:11px;color:var(--dc-text2)}
+.icon-btn{width:32px;height:32px;border-radius:4px;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;color:var(--dc-text2);font-size:18px;transition:all .1s}
+.icon-btn:hover{background:var(--dc-hover);color:var(--dc-text)}
+
+/* ── MAIN CHAT ── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--dc-bg)}
+
+/* ── CHANNEL HEADER ── */
+#ch-header{
+  height:48px;padding:0 16px;display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid rgba(0,0,0,.2);flex-shrink:0;background:var(--dc-bg)
+}
+.ch-header-hash{font-size:24px;color:var(--dc-text3)}
+.ch-header-name{font-weight:700;font-size:15px}
+.ch-header-sep{width:1px;height:24px;background:rgba(255,255,255,.1);margin:0 4px}
+.ch-header-topic{font-size:14px;color:var(--dc-text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.header-icons{margin-left:auto;display:flex;gap:4px}
+
+/* ── MESSAGES ── */
+#messages{flex:1;overflow-y:auto;padding:16px 0;display:flex;flex-direction:column;gap:0}
+.msg-group{display:flex;gap:16px;padding:2px 16px 2px;transition:background .05s;position:relative}
+.msg-group:hover{background:rgba(4,4,5,.07)}
+.msg-group.new-sender{margin-top:16px}
+.msg-avatar{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer
+}
+.msg-avatar.hidden{visibility:hidden}
+.msg-body{flex:1;min-width:0}
+.msg-header{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+.msg-author{font-weight:500;font-size:15px;cursor:pointer}
+.msg-author:hover{text-decoration:underline}
+.msg-author.bot-tag-author{color:#fff}
+.bot-badge{
+  background:var(--dc-blurple);color:#fff;font-size:10px;font-weight:700;
+  padding:1px 4px;border-radius:3px;vertical-align:middle;margin-left:2px
+}
+.msg-time{font-size:12px;color:var(--dc-text3)}
+.msg-content{font-size:15px;color:var(--dc-text);line-height:1.375;word-wrap:break-word}
+.msg-content.deleted{color:var(--dc-text3);font-style:italic}
+.msg-hover-actions{
+  display:none;position:absolute;right:16px;top:-16px;
+  background:var(--dc-bg2);border:1px solid rgba(0,0,0,.2);border-radius:4px;
+  padding:2px;gap:2px;box-shadow:0 4px 8px rgba(0,0,0,.3)
+}
+.msg-group:hover .msg-hover-actions{display:flex}
+.msg-action-btn{
+  width:30px;height:30px;border-radius:4px;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;color:var(--dc-text2);font-size:16px;
+  transition:background .1s,color .1s
+}
+.msg-action-btn:hover{background:var(--dc-hover);color:var(--dc-text)}
+.timestamp-line{
+  display:flex;align-items:center;gap:10px;padding:16px 16px 4px;
+  font-size:12px;color:var(--dc-text3);
+}
+.timestamp-line::before,.timestamp-line::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+
+/* ── EMBEDS ── */
+.embed{
+  display:flex;margin-top:4px;max-width:520px;
+  background:var(--dc-embed);border-radius:4px;
+  border-left:4px solid var(--dc-embed-b);overflow:hidden
+}
+.embed-inner{padding:8px 12px 12px;flex:1;min-width:0}
+.embed-author{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:13px;color:var(--dc-text2)}
+.embed-author-icon{width:20px;height:20px;border-radius:50%}
+.embed-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:4px}
+.embed-title a{color:var(--dc-blurple);text-decoration:none}
+.embed-title a:hover{text-decoration:underline}
+.embed-desc{font-size:14px;color:var(--dc-text);line-height:1.4;margin-bottom:8px}
+.embed-fields{display:grid;gap:8px;margin-bottom:8px}
+.embed-field{min-width:0}
+.embed-field-name{font-size:13px;font-weight:700;color:var(--dc-text);margin-bottom:2px}
+.embed-field-val{font-size:14px;color:var(--dc-text2);line-height:1.4}
+.embed-footer{font-size:12px;color:var(--dc-text3);display:flex;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--dc-border)}
+.embed-thumbnail{width:80px;height:80px;border-radius:4px;margin:8px;object-fit:cover;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:32px}
+.embed-image{width:100%;border-radius:4px;margin-top:8px;max-height:200px;object-fit:cover}
+
+/* ── COMPONENTS (buttons/selects) ── */
+.components-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.dc-btn{
+  padding:6px 16px;border-radius:3px;font-size:14px;font-weight:500;
+  cursor:pointer;border:none;transition:filter .1s,transform .05s;
+  font-family:var(--font);display:inline-flex;align-items:center;gap:6px
+}
+.dc-btn:hover{filter:brightness(1.1)}
+.dc-btn:active{transform:scale(.98)}
+.dc-btn.primary{background:var(--dc-blurple);color:#fff}
+.dc-btn.secondary{background:#4e5058;color:#fff}
+.dc-btn.success{background:var(--dc-green);color:#fff}
+.dc-btn.danger{background:var(--dc-red);color:#fff}
+.dc-btn.link{background:transparent;color:var(--dc-blurple);padding:6px 4px}
+.dc-select{
+  background:#1e1f22;border:1px solid rgba(255,255,255,.1);border-radius:4px;
+  padding:8px 12px;color:var(--dc-text);font-size:14px;font-family:var(--font);
+  cursor:pointer;min-width:200px;margin-top:8px
+}
+
+/* ── SLASH COMMAND AUTOCOMPLETE ── */
+#autocomplete{
+  position:absolute;bottom:calc(100% + 8px);left:16px;right:16px;
+  background:#111214;border-radius:8px;border:1px solid rgba(255,255,255,.06);
+  overflow:hidden;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.5);
+  max-height:280px;overflow-y:auto;display:none
+}
+#autocomplete.show{display:block}
+.ac-header{
+  padding:8px 12px 4px;font-size:12px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--dc-text2);border-bottom:1px solid rgba(255,255,255,.06)
+}
+.ac-item{
+  display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;
+  transition:background .08s;position:relative
+}
+.ac-item:hover,.ac-item.selected{background:rgba(88,101,242,.2)}
+.ac-item.selected{background:rgba(88,101,242,.25)}
+.ac-cmd-name{font-size:14px;font-weight:600;color:#fff}
+.ac-cmd-desc{font-size:13px;color:var(--dc-text2);margin-left:auto}
+.ac-cmd-icon{
+  width:32px;height:32px;border-radius:4px;background:var(--dc-blurple);
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0
+}
+.ac-option-hint{
+  font-size:12px;color:var(--dc-text2);padding:6px 12px;
+  border-top:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.2)
+}
+
+/* ── INPUT AREA ── */
+#input-area{padding:0 16px 24px;flex-shrink:0;position:relative}
+.input-box{
+  background:var(--dc-input-bg);border-radius:8px;
+  display:flex;align-items:center;gap:0;padding:0 16px;
+  position:relative;
+}
+#msg-input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--dc-text);font-size:15px;font-family:var(--font);
+  padding:11px 0;line-height:1.375;min-height:44px;resize:none;
+  max-height:200px;overflow-y:auto
+}
+#msg-input::placeholder{color:var(--dc-text3)}
+.input-actions{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.input-icon{
+  width:30px;height:30px;border-radius:4px;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;color:var(--dc-text2);font-size:20px;
+  transition:color .1s
+}
+.input-icon:hover{color:var(--dc-text)}
+.slash-indicator{
+  display:none;align-items:center;gap:6px;padding:4px 8px;
+  background:rgba(88,101,242,.2);border-radius:4px;margin-right:8px;
+  font-size:13px;color:var(--dc-blurple);font-weight:600
+}
+.slash-indicator.show{display:flex}
+
+/* ── RIGHT PANEL (file import) ── */
+#rpanel{
+  width:320px;min-width:320px;background:var(--dc-bg2);
+  border-left:1px solid rgba(0,0,0,.2);display:flex;flex-direction:column;overflow:hidden
+}
+.rp-header{
+  padding:12px 16px;border-bottom:1px solid rgba(0,0,0,.2);
+  font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--dc-text2);display:flex;align-items:center;justify-content:space-between
+}
+.rp-section{border-bottom:1px solid rgba(255,255,255,.04)}
+.rp-section-title{
+  padding:10px 16px 6px;font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--dc-text3)
+}
+.upload-zone{
+  margin:8px 12px;border:2px dashed rgba(255,255,255,.1);border-radius:8px;
+  padding:20px;text-align:center;cursor:pointer;transition:all .15s;color:var(--dc-text2)
+}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--dc-blurple);background:rgba(88,101,242,.08);color:var(--dc-blurple)}
+.upload-icon{font-size:28px;margin-bottom:8px}
+.upload-text{font-size:13px;font-weight:500}
+.upload-sub{font-size:11px;color:var(--dc-text3);margin-top:4px}
+#file-input{display:none}
+.file-card{
+  margin:4px 12px;background:var(--dc-bg3);border-radius:6px;padding:10px 12px;
+  display:flex;align-items:center;gap:10px;font-size:13px
+}
+.file-icon{font-size:20px;flex-shrink:0}
+.file-info{flex:1;min-width:0}
+.file-name{font-weight:600;color:var(--dc-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-size{font-size:11px;color:var(--dc-text3)}
+.file-remove{color:var(--dc-text3);cursor:pointer;font-size:16px;padding:2px 4px;border-radius:3px}
+.file-remove:hover{color:var(--dc-red);background:rgba(242,63,67,.1)}
+
+/* ── COMMAND LIST ── */
+.cmd-item{
+  margin:3px 12px;background:var(--dc-bg3);border-radius:6px;padding:8px 12px;
+  cursor:pointer;transition:background .1s;border:1px solid transparent
+}
+.cmd-item:hover{background:rgba(88,101,242,.1);border-color:rgba(88,101,242,.3)}
+.cmd-name{font-size:13px;font-weight:700;color:var(--dc-blurple)}
+.cmd-desc{font-size:11px;color:var(--dc-text3);margin-top:2px}
+.cmd-opts{font-size:10px;color:var(--dc-text3);margin-top:3px}
+.cmd-opts span{
+  background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;margin-right:3px;color:var(--dc-text2)
+}
+
+/* ── CONSOLE ── */
+#console-panel{
+  flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0
+}
+.console-out{
+  flex:1;overflow-y:auto;padding:8px 12px;font-family:'JetBrains Mono','Courier New',monospace;
+  font-size:11px;line-height:1.7;color:#b5c0d0
+}
+.clog-info{color:#7dd3fc}
+.clog-warn{color:#fde68a}
+.clog-error{color:#fca5a5}
+.clog-success{color:#86efac}
+.clog-cmd{color:#c4b5fd}
+
+/* ── STATUS BAR ── */
+#statusbar{
+  height:22px;background:var(--dc-blurple);display:flex;align-items:center;
+  padding:0 16px;font-size:12px;color:rgba(255,255,255,.8);gap:12px;flex-shrink:0
+}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:#23a559;flex-shrink:0}
+
+/* ── MODAL ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)
+}
+.overlay.open{display:flex}
+.modal{
+  background:#313338;border-radius:8px;padding:24px;max-width:480px;width:92%;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);animation:popIn .15s ease
+}
+@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-title{font-size:20px;font-weight:700;margin-bottom:8px}
+.modal-sub{font-size:14px;color:var(--dc-text2);margin-bottom:16px}
+.modal-input{
+  width:100%;background:#1e1f22;border:1px solid rgba(255,255,255,.1);
+  border-radius:4px;padding:10px 12px;color:var(--dc-text);font-size:14px;
+  font-family:var(--font);outline:none;margin-bottom:12px;transition:border-color .15s
+}
+.modal-input:focus{border-color:var(--dc-blurple)}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.dc-modal-btn{
+  padding:8px 16px;border-radius:3px;font-size:14px;font-weight:500;
+  cursor:pointer;border:none;font-family:var(--font);transition:filter .1s
+}
+.dc-modal-btn:hover{filter:brightness(1.1)}
+.dc-modal-btn.primary{background:var(--dc-blurple);color:#fff}
+.dc-modal-btn.ghost{background:transparent;color:var(--dc-text2)}
+.dc-modal-btn.ghost:hover{text-decoration:underline;filter:none}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg-group{animation:fadeUp .12s ease}
+.typing-indicator{display:flex;align-items:center;gap:10px;padding:4px 16px 8px;font-size:13px;color:var(--dc-text2)}
+.typing-dots span{
+  display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--dc-text2);
+  margin:0 1px;animation:tdot 1.2s infinite
+}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+.mention{
+  background:var(--dc-mention);color:var(--dc-blurple);border-radius:3px;
+  padding:0 2px;cursor:pointer;font-weight:500
+}
+.mention:hover{background:var(--dc-blurple);color:#fff}
+code.inline{
+  background:rgba(0,0,0,.3);border-radius:3px;padding:0 4px;
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:#e06c75
+}
+
+/* ── TABS ── */
+.rp-tabs{display:flex;border-bottom:1px solid rgba(0,0,0,.2)}
+.rp-tab{
+  flex:1;padding:10px 8px;font-size:12px;font-weight:600;text-align:center;
+  cursor:pointer;color:var(--dc-text2);border-bottom:2px solid transparent;
+  transition:all .12s
+}
+.rp-tab:hover{color:var(--dc-text)}
+.rp-tab.active{color:#fff;border-bottom-color:var(--dc-blurple)}
+.rp-panel{display:none;flex:1;overflow-y:auto}
+.rp-panel.active{display:flex;flex-direction:column}
+
+/* ── REACTION ── */
+.reactions{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.reaction{
+  display:flex;align-items:center;gap:4px;padding:2px 6px;
+  background:rgba(255,255,255,.07);border-radius:8px;
+  border:1px solid transparent;cursor:pointer;font-size:13px;
+  transition:background .1s,border-color .1s
+}
+.reaction:hover,.reaction.active{background:rgba(88,101,242,.2);border-color:var(--dc-blurple)}
+.reaction .count{font-size:13px;color:var(--dc-text);font-weight:500}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  #rail{display:none}
+  #sidebar{display:none}
+  #rpanel{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- SERVER RAIL -->
+  <div id="rail">
+    <div class="rail-item active" title="Bot Sandbox">
+      <div class="rail-pill"></div>
+      🤖
+    </div>
+    <div class="rail-sep"></div>
+    <div class="rail-item" title="Add Server" style="background:rgba(35,165,89,.2);color:#23a559;font-size:24px;font-weight:300" onclick="toast('This is a sandbox!')">+</div>
+  </div>
+
+  <!-- CHANNEL SIDEBAR -->
+  <div id="sidebar">
+    <div class="server-header">
+      🤖 Bot Sandbox
+      <span style="color:var(--dc-text2);font-size:18px">⌄</span>
+    </div>
+
+    <div style="overflow-y:auto;flex:1">
+      <div class="ch-section">Text Channels <span title="Add channel">+</span></div>
+      <div class="ch-item active" onclick="setChannel('test-area','Test your bot commands here')">
+        <span class="ch-hash">#</span>
+        <span class="ch-name">test-area</span>
+      </div>
+      <div class="ch-item" onclick="setChannel('bot-logs','Automated bot activity logs')">
+        <span class="ch-hash">#</span>
+        <span class="ch-name">bot-logs</span>
+        <span class="ch-badge" id="log-badge" style="display:none">!</span>
+      </div>
+      <div class="ch-item" onclick="setChannel('general','General chat')">
+        <span class="ch-hash">#</span>
+        <span class="ch-name">general</span>
+      </div>
+
+      <div class="ch-section" style="margin-top:8px">Voice Channels</div>
+      <div class="ch-item">
+        <span style="font-size:18px;color:var(--dc-text3)">🔊</span>
+        <span class="ch-name">General</span>
+      </div>
+
+      <div class="ch-section" style="margin-top:8px">Sandbox Tools</div>
+      <div class="ch-item" onclick="openModal('settings-modal')">
+        <span class="ch-hash" style="font-size:16px">⚙</span>
+        <span class="ch-name">Bot Config</span>
+      </div>
+      <div class="ch-item" onclick="clearMessages()">
+        <span class="ch-hash" style="font-size:16px">🗑</span>
+        <span class="ch-name">Clear Messages</span>
+      </div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="user-avatar" id="user-avatar-btn" onclick="openModal('profile-modal')">
+        😎
+        <div class="user-status"></div>
+      </div>
+      <div class="user-info">
+        <div class="user-name" id="display-username">Tester</div>
+        <div class="user-tag" id="display-usertag">#0001</div>
+      </div>
+      <div class="icon-btn" title="Mute">🎤</div>
+      <div class="icon-btn" title="Settings" onclick="openModal('settings-modal')">⚙️</div>
+    </div>
+  </div>
+
+  <!-- MAIN CHAT -->
+  <div id="main">
+    <div id="ch-header">
+      <span class="ch-header-hash">#</span>
+      <span class="ch-header-name" id="ch-name-display">test-area</span>
+      <span class="ch-header-sep"></span>
+      <span class="ch-header-topic" id="ch-topic-display">Test your bot commands here — import a bot file to get started</span>
+      <div class="header-icons">
+        <div class="icon-btn" title="Pin">📌</div>
+        <div class="icon-btn" title="Members">👥</div>
+        <div class="icon-btn" title="Search">🔍</div>
+        <div class="icon-btn" title="Inbox">📥</div>
+        <div class="icon-btn" title="Help">❓</div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div id="messages">
+      <!-- Welcome message injected by JS -->
+    </div>
+
+    <!-- Typing indicator -->
+    <div class="typing-indicator" id="typing" style="display:none">
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+      <span id="typing-text">Bot is thinking...</span>
+    </div>
+
+    <!-- Input -->
+    <div id="input-area">
+      <div id="autocomplete"></div>
+      <div class="input-box">
+        <div class="input-icon" title="Attach file" onclick="document.getElementById('chat-file').click()">➕</div>
+        <input type="file" id="chat-file" style="display:none" onchange="handleChatFile(this)">
+        <div class="slash-indicator" id="slash-ind">
+          <span>/</span><span id="slash-cmd-name"></span>
+        </div>
+        <textarea id="msg-input" rows="1" placeholder="Message #test-area"
+          oninput="onInput(this)" onkeydown="onKey(event)"></textarea>
+        <div class="input-actions">
+          <div class="input-icon">😀</div>
+          <div class="input-icon">🎁</div>
+          <div class="input-icon" id="send-btn" onclick="sendMessage()" style="color:var(--dc-blurple)">➤</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="rpanel">
+    <div class="rp-header">
+      Bot Sandbox
+      <span style="color:var(--dc-green);font-size:11px;font-weight:400;text-transform:none">● ACTIVE</span>
+    </div>
+
+    <div class="rp-tabs">
+      <div class="rp-tab active" onclick="rpTab('import',this)">Import</div>
+      <div class="rp-tab" onclick="rpTab('commands',this)">Commands</div>
+      <div class="rp-tab" onclick="rpTab('console',this)">Console</div>
+    </div>
+
+    <!-- IMPORT TAB -->
+    <div id="rp-import" class="rp-panel active">
+      <div class="rp-section-title">Import Bot File</div>
+      <div class="upload-zone" id="upload-zone"
+        onclick="document.getElementById('file-input').click()"
+        ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+        <div class="upload-icon">📁</div>
+        <div class="upload-text">Drop or click to import</div>
+        <div class="upload-sub">.py .js .ts .txt files supported</div>
+      </div>
+      <input type="file" id="file-input" accept=".py,.js,.ts,.txt,.json" onchange="importFile(this)">
+      <div id="file-cards"></div>
+
+      <div class="rp-section-title" style="margin-top:8px">Bot Identity</div>
+      <div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:8px">
+        <div>
+          <div style="font-size:11px;color:var(--dc-text3);margin-bottom:4px">Bot Name</div>
+          <input class="modal-input" id="bot-name-inp" value="TestBot" style="margin:0" oninput="updateBotIdentity()">
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--dc-text3);margin-bottom:4px">Bot Avatar Emoji</div>
+          <input class="modal-input" id="bot-avatar-inp" value="🤖" style="margin:0;font-size:20px;width:60px;text-align:center" oninput="updateBotIdentity()">
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--dc-text3);margin-bottom:4px">Bot Prefix (legacy)</div>
+          <input class="modal-input" id="bot-prefix-inp" value="!" style="margin:0;width:60px">
+        </div>
+        <button class="dc-btn primary" style="font-size:13px;width:100%;justify-content:center" onclick="addManualCommand()">+ Add Custom Command</button>
+      </div>
+
+      <div class="rp-section-title">Quick Templates</div>
+      <div style="padding:4px 12px 12px;display:flex;flex-direction:column;gap:4px">
+        <button class="dc-btn secondary" style="font-size:12px;justify-content:center" onclick="loadTemplate('basic')">🤖 Basic Bot Template</button>
+        <button class="dc-btn secondary" style="font-size:12px;justify-content:center" onclick="loadTemplate('moderation')">🛡 Moderation Bot</button>
+        <button class="dc-btn secondary" style="font-size:12px;justify-content:center" onclick="loadTemplate('economy')">💰 Economy Bot</button>
+        <button class="dc-btn secondary" style="font-size:12px;justify-content:center" onclick="loadTemplate('fun')">🎉 Fun Commands Bot</button>
+        <button class="dc-btn secondary" style="font-size:12px;justify-content:center" onclick="loadTemplate('roblox')">🎮 Roblox Bot</button>
+      </div>
+    </div>
+
+    <!-- COMMANDS TAB -->
+    <div id="rp-commands" class="rp-panel">
+      <div style="padding:8px 12px 4px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:11px;color:var(--dc-text3);text-transform:uppercase;letter-spacing:.05em;font-weight:700">Registered Commands</div>
+        <span style="font-size:11px;color:var(--dc-text3)" id="cmd-count">0 commands</span>
+      </div>
+      <div id="cmd-list" style="padding:0 0 12px"></div>
+    </div>
+
+    <!-- CONSOLE TAB -->
+    <div id="rp-console" class="rp-panel">
+      <div style="padding:6px 12px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-between;align-items:center;flex-shrink:0">
+        <span style="font-size:11px;color:var(--dc-text3);text-transform:uppercase;font-weight:700">Console</span>
+        <span style="font-size:11px;color:var(--dc-text3);cursor:pointer" onclick="clearConsole()">Clear</span>
+      </div>
+      <div class="console-out" id="console-out"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div id="statusbar">
+  <div class="sb-dot"></div>
+  <span id="sb-text">Bot Sandbox Ready — Import a file or use a template</span>
+  <span style="margin-left:auto;opacity:.7" id="sb-cmd-count">0 commands loaded</span>
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="settings-modal">
+  <div class="modal">
+    <div class="modal-title">⚙️ Sandbox Settings</div>
+    <div class="modal-sub">Customize your sandbox environment</div>
+    <div style="font-size:12px;color:var(--dc-text3);margin-bottom:4px">Your Username</div>
+    <input class="modal-input" id="set-username" placeholder="Your display name">
+    <div style="font-size:12px;color:var(--dc-text3);margin-bottom:4px">Bot Response Delay (ms)</div>
+    <input class="modal-input" id="set-delay" type="number" value="800" min="0" max="5000">
+    <div style="font-size:12px;color:var(--dc-text3);margin-bottom:4px">Server Name</div>
+    <input class="modal-input" id="set-server" value="Bot Sandbox">
+    <div class="modal-btns">
+      <button class="dc-modal-btn ghost" onclick="closeModal('settings-modal')">Cancel</button>
+      <button class="dc-modal-btn primary" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="profile-modal">
+  <div class="modal">
+    <div class="modal-title">👤 Your Profile</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--dc-blurple);display:flex;align-items:center;justify-content:center;font-size:32px" id="profile-avatar">😎</div>
+      <div>
+        <div style="font-size:18px;font-weight:700" id="profile-name">Tester</div>
+        <div style="font-size:13px;color:var(--dc-text2)">Sandbox User • Today at 12:00</div>
+        <div style="margin-top:6px;display:flex;gap:4px">
+          <div style="background:var(--dc-blurple);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">SANDBOX</div>
+          <div style="background:var(--dc-green);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">TESTER</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="dc-modal-btn ghost" onclick="closeModal('profile-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="add-cmd-modal">
+  <div class="modal">
+    <div class="modal-title">➕ Add Custom Command</div>
+    <div class="modal-sub">Define a slash command for your bot</div>
+    <div style="font-size:12px;color:var(--dc-text3);margin-bottom:4px">Command Name (no spaces)</div>
+    <input class="modal-input" id="new-cmd-name" placeholder="e.g. ping">
+    <div style="font-size:12px;color:var(--dc-text3);margin-bottom:4px">Description</div>
+    <input class="modal-input" id="new-cmd-desc" placeholder="e.g. Check bot latency">
+    <div style="font-size:12px;color:var(--dc-text3);margin-bottom:4px">Options (comma separated, prefix ? for optional)</div>
+    <input class="modal-input" id="new-cmd-opts" placeholder="e.g. user, ?reason, amount">
+    <div style="font-size:12px;color:var(--dc-text3);margin-bottom:4px">Bot Response</div>
+    <textarea class="modal-input" id="new-cmd-resp" rows="3" placeholder="🏓 Pong! Latency: 42ms" style="resize:vertical"></textarea>
+    <div style="font-size:12px;color:var(--dc-text3);margin-bottom:4px">Response Type</div>
+    <select class="modal-input" id="new-cmd-type" style="margin:0 0 12px">
+      <option value="message">Plain Message</option>
+      <option value="embed">Embed</option>
+      <option value="success">✅ Success Embed</option>
+      <option value="error">❌ Error Embed</option>
+      <option value="info">ℹ️ Info Embed</option>
+    </select>
+    <div class="modal-btns">
+      <button class="dc-modal-btn ghost" onclick="closeModal('add-cmd-modal')">Cancel</button>
+      <button class="dc-modal-btn primary" onclick="saveNewCommand()">Add Command</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:6px;align-items:center"></div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════ */
+let commands = [];
+let msgId = 0;
+let username = 'Tester';
+let botName = 'TestBot';
+let botAvatar = '🤖';
+let botDelay = 800;
+let acIndex = 0;
+let acItems = [];
+let currentChannel = 'test-area';
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  showWelcome();
+  updateBotIdentity();
+  clog('info', 'Discord Bot Sandbox initialized');
+  clog('info', 'Import a bot file or use a template to get started');
+  clog('info', 'Type / in the message box to see slash commands');
+});
+
+function showWelcome() {
+  addDivider('Today');
+  addBotMessage([{
+    type:'embed',
+    color:'#5865f2',
+    title:'👋 Welcome to Discord Bot Sandbox!',
+    desc:`This is a fully simulated Discord environment. Here's how to use it:
+\n**📁 Import a bot file** — Use the right panel to import .py, .js, or .txt files with bot commands
+\n**⚡ Quick templates** — Load pre-built bot templates instantly
+\n**/ Slash commands** — Type \`/\` to see available commands with autocomplete
+\n**🧪 Test everything** — Commands run in simulation — no real bot needed!`,
+    fields:[
+      {name:'Supported File Types', value:'`.py` `.js` `.ts` `.txt` `.json`', inline:true},
+      {name:'Command Types', value:'Slash `/cmd` and prefix `!cmd`', inline:true},
+    ],
+    footer:'Bot Sandbox v2.0 • All commands are simulated'
+  }]);
+}
+
+/* ══════════════════════════════════════════════════
+   MESSAGE RENDERING
+══════════════════════════════════════════════════ */
+let lastAuthor = null;
+let lastTime = null;
+
+function addMessage(author, avatar, content, isBot=false, components=null, reactions=null) {
+  const msgs = document.getElementById('messages');
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  const id = ++msgId;
+  const newSender = author !== lastAuthor;
+
+  const div = document.createElement('div');
+  div.className = 'msg-group' + (newSender?' new-sender':'');
+  div.id = 'msg-'+id;
+
+  let contentHtml = processContent(content);
+  let compHtml = '';
+  if (components) compHtml = renderComponents(components, id);
+  let reactHtml = '';
+  if (reactions) reactHtml = renderReactions(reactions, id);
+
+  div.innerHTML = `
+    <div class="msg-avatar ${newSender?'':'hidden'}" style="background:${isBot?'#5865f2':'#ed4245'};font-size:${newSender?18:0}px">
+      ${newSender ? avatar : ''}
+    </div>
+    <div class="msg-body">
+      ${newSender ? `<div class="msg-header">
+        <span class="msg-author ${isBot?'bot-tag-author':''}" style="color:${isBot?'#fff':'#ed9fa2'}">${author}${isBot?'<span class="bot-badge">BOT</span>':''}</span>
+        <span class="msg-time">Today at ${timeStr}</span>
+      </div>` : `<span class="msg-time" style="position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:11px;color:var(--dc-text3);width:56px;text-align:right;padding-right:8px;display:none" class="hover-time">${timeStr}</span>`}
+      <div class="msg-content" id="mc-${id}">${contentHtml}</div>
+      ${compHtml}
+      ${reactHtml}
+    </div>
+    <div class="msg-hover-actions">
+      <div class="msg-action-btn" onclick="addReaction(${id})" title="Add Reaction">😀</div>
+      <div class="msg-action-btn" onclick="replyTo(${id},'${author}')" title="Reply">↩️</div>
+      <div class="msg-action-btn" onclick="deleteMsg(${id})" title="Delete">🗑️</div>
+    </div>
+  `;
+
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  lastAuthor = author;
+  return id;
+}
+
+function addBotMessage(content, components=null, reactions=null) {
+  if (typeof content === 'string') {
+    return addMessage(botName, botAvatar, content, true, components, reactions);
+  }
+  // Array of embeds/messages
+  const msgs = document.getElementById('messages');
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  const id = ++msgId;
+
+  const div = document.createElement('div');
+  div.className = 'msg-group new-sender';
+  div.id = 'msg-'+id;
+
+  let inner = '';
+  content.forEach(part => {
+    if (part.type === 'text') inner += `<div class="msg-content">${processContent(part.text)}</div>`;
+    else if (part.type === 'embed') inner += renderEmbed(part);
+  });
+  if (components) inner += renderComponents(components, id);
+  if (reactions) inner += renderReactions(reactions, id);
+
+  div.innerHTML = `
+    <div class="msg-avatar" style="background:#5865f2;font-size:18px">${botAvatar}</div>
+    <div class="msg-body">
+      <div class="msg-header">
+        <span class="msg-author bot-tag-author">${botName}<span class="bot-badge">BOT</span></span>
+        <span class="msg-time">Today at ${timeStr}</span>
+      </div>
+      ${inner}
+    </div>
+    <div class="msg-hover-actions">
+      <div class="msg-action-btn" onclick="addReaction(${id})" title="Add Reaction">😀</div>
+      <div class="msg-action-btn" onclick="deleteMsg(${id})" title="Delete">🗑️</div>
+    </div>
+  `;
+
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  lastAuthor = botName;
+  return id;
+}
+
+function renderEmbed(e) {
+  const color = e.color || '#5865f2';
+  const fieldsHtml = e.fields ? `<div class="embed-fields" style="grid-template-columns:${e.fields.map(f=>f.inline?'1fr':'1fr').join(' ')}">${e.fields.map(f=>`<div class="embed-field"><div class="embed-field-name">${f.name}</div><div class="embed-field-val">${processContent(f.value)}</div></div>`).join('')}</div>` : '';
+  const thumbHtml = e.thumbnail ? `<div class="embed-thumbnail">${e.thumbnail}</div>` : '';
+  const imgHtml = e.image ? `<div class="embed-image" style="background:rgba(255,255,255,.05);height:120px;display:flex;align-items:center;justify-content:center;font-size:40px;border-radius:4px">${e.image}</div>` : '';
+  const authorHtml = e.author ? `<div class="embed-author"><div style="width:20px;height:20px;border-radius:50%;background:#5865f2;display:flex;align-items:center;justify-content:center;font-size:11px">${e.authorIcon||'🤖'}</div>${e.author}</div>` : '';
+  const footerHtml = e.footer ? `<div class="embed-footer">•  ${e.footer}</div>` : '';
+  return `<div class="embed"><div class="embed-inner" style="border-left:4px solid ${color}">
+    ${authorHtml}
+    ${e.title ? `<div class="embed-title">${e.title}</div>` : ''}
+    ${e.desc ? `<div class="embed-desc">${processContent(e.desc)}</div>` : ''}
+    ${fieldsHtml}${imgHtml}${footerHtml}
+  </div>${thumbHtml}</div>`;
+}
+
+function renderComponents(comps, msgId) {
+  if (!comps || !comps.length) return '';
+  let html = '';
+  comps.forEach(row => {
+    html += '<div class="components-row">';
+    row.forEach(c => {
+      if (c.type === 'button') {
+        html += `<button class="dc-btn ${c.style||'primary'}" onclick="btnClick(${msgId},'${c.label}','${c.id||''}')">${c.emoji||''} ${c.label}</button>`;
+      } else if (c.type === 'select') {
+        html += `<select class="dc-select" onchange="selectChange(${msgId},this.value,'${c.placeholder||''}')"><option value="" disabled selected>${c.placeholder||'Select...'}</option>${(c.options||[]).map(o=>`<option value="${o.value||o}">${o.label||o}</option>`).join('')}</select>`;
+      }
+    });
+    html += '</div>';
+  });
+  return html;
+}
+
+function renderReactions(reactions, msgId) {
+  if (!reactions || !reactions.length) return '';
+  return '<div class="reactions">' + reactions.map(r=>`<div class="reaction" onclick="toggleReaction(this)"><span>${r.emoji}</span><span class="count">${r.count||1}</span></div>`).join('') + '</div>';
+}
+
+function processContent(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/`([^`]+)`/g,'<code class="inline">$1</code>')
+    .replace(/\n/g,'<br>')
+    .replace(/@(\w+)/g,'<span class="mention">@$1</span>')
+    .replace(/#(\w[\w-]+)/g,'<span class="mention">#$1</span>');
+}
+
+function addDivider(text) {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'timestamp-line';
+  d.textContent = text;
+  msgs.appendChild(d);
+  lastAuthor = null;
+}
+
+function deleteMsg(id) {
+  const d = document.getElementById('msg-'+id);
+  if (d) { d.style.opacity='0'; d.style.transition='opacity .2s'; setTimeout(()=>d.remove(),200); }
+}
+
+function toggleReaction(el) {
+  el.classList.toggle('active');
+  const c = el.querySelector('.count');
+  c.textContent = el.classList.contains('active') ? +c.textContent+1 : +c.textContent-1;
+}
+
+function addReaction(id) {
+  const emojis = ['👍','❤️','😂','🎉','🔥','💯','✅','👀'];
+  const emoji = emojis[Math.floor(Math.random()*emojis.length)];
+  const d = document.getElementById('msg-'+id);
+  if (!d) return;
+  let row = d.querySelector('.reactions');
+  if (!row) {
+    row = document.createElement('div'); row.className='reactions';
+    d.querySelector('.msg-body').appendChild(row);
+  }
+  const r = document.createElement('div');
+  r.className='reaction'; r.innerHTML=`<span>${emoji}</span><span class="count">1</span>`;
+  r.onclick = () => toggleReaction(r);
+  row.appendChild(r);
+}
+
+function replyTo(id, author) {
+  const inp = document.getElementById('msg-input');
+  inp.value = `@${author} `;
+  inp.focus();
+}
+
+/* ══════════════════════════════════════════════════
+   INPUT HANDLING
+══════════════════════════════════════════════════ */
+function onInput(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
+  const val = ta.value;
+
+  if (val.startsWith('/')) {
+    const query = val.slice(1).toLowerCase();
+    showAutocomplete(query);
+  } else {
+    hideAutocomplete();
+  }
+
+  const slashInd = document.getElementById('slash-ind');
+  const slashName = document.getElementById('slash-cmd-name');
+  if (val.startsWith('/') && val.includes(' ')) {
+    const name = val.split(' ')[0].slice(1);
+    slashInd.classList.add('show');
+    slashName.textContent = name;
+  } else {
+    slashInd.classList.remove('show');
+  }
+}
+
+function onKey(e) {
+  const ac = document.getElementById('autocomplete');
+  if (ac.classList.contains('show')) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); acIndex = Math.min(acIndex+1, acItems.length-1); highlightAC(); return; }
+    if (e.key === 'ArrowUp') { e.preventDefault(); acIndex = Math.max(acIndex-1, 0); highlightAC(); return; }
+    if (e.key === 'Tab' || e.key === 'Enter') {
+      e.preventDefault();
+      if (acItems[acIndex]) selectAC(acItems[acIndex]);
+      return;
+    }
+    if (e.key === 'Escape') { hideAutocomplete(); return; }
+  }
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function showAutocomplete(query) {
+  const matches = commands.filter(c =>
+    c.name.toLowerCase().startsWith(query) || c.name.toLowerCase().includes(query)
+  );
+  acItems = matches;
+  acIndex = 0;
+  const ac = document.getElementById('autocomplete');
+
+  if (!matches.length) { hideAutocomplete(); return; }
+
+  ac.innerHTML = `<div class="ac-header">Available Commands — ${matches.length} result${matches.length!==1?'s':''}</div>` +
+    matches.map((c,i) => `
+      <div class="ac-item ${i===0?'selected':''}" onclick="selectAC(${JSON.stringify(c).replace(/"/g,'&quot;')})" id="ac-${i}">
+        <div class="ac-cmd-icon">${c.icon||'⚡'}</div>
+        <div style="flex:1;min-width:0">
+          <div class="ac-cmd-name">/${c.name}</div>
+          <div style="font-size:12px;color:var(--dc-text2)">${c.desc||'No description'}</div>
+          ${c.options&&c.options.length ? `<div style="font-size:11px;color:var(--dc-text3);margin-top:2px">${c.options.map(o=>`<span style="background:rgba(255,255,255,.07);padding:1px 4px;border-radius:3px;margin-right:3px">${o.required===false?'['+o.name+']':o.name}</span>`).join('')}</div>` : ''}
+        </div>
+      </div>
+    `).join('') +
+    (matches[0]?.options?.length ? `<div class="ac-option-hint">💡 Options: ${matches[0].options.map(o=>(o.required===false?'[optional] ':'')+o.name+': '+o.type).join(' • ')}</div>` : '');
+
+  ac.classList.add('show');
+}
+
+function highlightAC() {
+  document.querySelectorAll('.ac-item').forEach((el,i) => {
+    el.classList.toggle('selected', i===acIndex);
+    if (i===acIndex) el.scrollIntoView({block:'nearest'});
+  });
+}
+
+function selectAC(cmd) {
+  if (typeof cmd === 'string') cmd = JSON.parse(cmd);
+  const inp = document.getElementById('msg-input');
+  let text = '/' + cmd.name + ' ';
+  inp.value = text;
+  inp.focus();
+  inp.setSelectionRange(text.length, text.length);
+  hideAutocomplete();
+  document.getElementById('slash-ind').classList.add('show');
+  document.getElementById('slash-cmd-name').textContent = cmd.name;
+
+  // Show option hints
+  if (cmd.options && cmd.options.length) {
+    const ac = document.getElementById('autocomplete');
+    ac.innerHTML = `<div class="ac-header">/${cmd.name} — Fill in options</div>` +
+      cmd.options.map(o => `
+        <div class="ac-item">
+          <div class="ac-cmd-icon" style="background:${o.required===false?'#4e5058':'#5865f2'};font-size:13px">${o.required===false?'?':'!'}</div>
+          <div>
+            <div class="ac-cmd-name" style="color:${o.required===false?'#949ba4':'#fff'}">${o.name}</div>
+            <div style="font-size:12px;color:var(--dc-text2)">${o.type||'string'}${o.required===false?' • optional':' • required'}</div>
+          </div>
+          ${o.choices ? `<div style="margin-left:auto;display:flex;gap:4px">${o.choices.map(ch=>`<div style="background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px;font-size:11px;cursor:pointer" onclick="appendOption('${ch}')">${ch}</div>`).join('')}</div>` : ''}
+        </div>
+      `).join('');
+    ac.classList.add('show');
+  }
+}
+
+function appendOption(val) {
+  const inp = document.getElementById('msg-input');
+  inp.value += val + ' ';
+  inp.focus();
+}
+
+function hideAutocomplete() {
+  document.getElementById('autocomplete').classList.remove('show');
+  acItems = [];
+}
+
+/* ══════════════════════════════════════════════════
+   SEND MESSAGE
+══════════════════════════════════════════════════ */
+function sendMessage() {
+  const inp = document.getElementById('msg-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  inp.value = '';
+  inp.style.height = 'auto';
+  hideAutocomplete();
+  document.getElementById('slash-ind').classList.remove('show');
+  lastAuthor = null; // force new group on user message
+
+  // Show user message
+  addMessage(username, '😎', val, false);
+  clog('cmd', `User: ${val}`);
+
+  // Parse and execute
+  if (val.startsWith('/')) {
+    const parts = val.slice(1).split(/\s+/);
+    const name = parts[0].toLowerCase();
+    const args = parts.slice(1);
+    executeCommand(name, args);
+  } else if (val.startsWith('!')) {
+    const parts = val.slice(1).split(/\s+/);
+    const name = parts[0].toLowerCase();
+    const args = parts.slice(1);
+    executePrefixCommand(name, args);
+  } else {
+    // Regular message — maybe bot responds to keywords
+    checkKeywords(val);
+  }
+}
+
+function executeCommand(name, args) {
+  const cmd = commands.find(c => c.name.toLowerCase() === name);
+  if (!cmd) {
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addBotMessage([{
+        type:'embed', color:'#ed4245',
+        title:'❌ Unknown Command',
+        desc:`\`/${name}\` is not a registered command.\nType \`/\` to see available commands.`,
+      }]);
+    }, 400);
+    clog('warn', `Unknown command: /${name}`);
+    return;
+  }
+
+  // Validate required options
+  const required = (cmd.options||[]).filter(o=>o.required!==false);
+  if (required.length > args.length) {
+    const missing = required.slice(args.length).map(o=>o.name).join(', ');
+    showTyping();
+    setTimeout(()=>{
+      hideTyping();
+      addBotMessage([{
+        type:'embed', color:'#f0b232',
+        title:'⚠️ Missing Options',
+        desc:`Command \`/${name}\` requires: **${missing}**\n\nUsage: \`/${name} ${(cmd.options||[]).map(o=>o.required===false?'['+o.name+']':o.name).join(' ')}\``,
+      }]);
+    }, 400);
+    return;
+  }
+
+  clog('success', `Executing: /${name} ${args.join(' ')}`);
+  showTyping();
+
+  setTimeout(() => {
+    hideTyping();
+    if (cmd.handler) {
+      cmd.handler(args, name);
+    } else {
+      executeGenericResponse(cmd, args, name);
+    }
+  }, botDelay);
+}
+
+function executePrefixCommand(name, args) {
+  const prefix = document.getElementById('bot-prefix-inp').value || '!';
+  const cmd = commands.find(c => c.name.toLowerCase() === name || c.aliases?.includes(name));
+  if (cmd) {
+    clog('success', `Prefix command: !${name}`);
+    showTyping();
+    setTimeout(()=>{ hideTyping(); executeGenericResponse(cmd, args, name); }, botDelay);
+  }
+}
+
+function executeGenericResponse(cmd, args, name) {
+  const resp = cmd.response;
+  if (!resp) return;
+
+  // Substitute args into response
+  let text = resp;
+  args.forEach((a,i) => { text = text.replace(`{${i}}`, a).replace(`{arg${i}}`, a); });
+  if (cmd.options) {
+    cmd.options.forEach((o,i) => {
+      text = text.replace(`{${o.name}}`, args[i] || `[${o.name}]`);
+    });
+  }
+  text = text.replace('{user}', '@'+username).replace('{bot}', botName);
+
+  switch(cmd.responseType) {
+    case 'embed':
+      addBotMessage([{type:'embed', color:cmd.color||'#5865f2', title:cmd.title||`/${name}`, desc:text, footer:`Requested by ${username}`}]);
+      break;
+    case 'success':
+      addBotMessage([{type:'embed', color:'#23a559', title:'✅ Success', desc:text, footer:`Requested by ${username}`}]);
+      break;
+    case 'error':
+      addBotMessage([{type:'embed', color:'#f23f43', title:'❌ Error', desc:text}]);
+      break;
+    case 'info':
+      addBotMessage([{type:'embed', color:'#5865f2', title:'ℹ️ '+name, desc:text, footer:`Requested by ${username}`}]);
+      break;
+    default:
+      addBotMessage(text);
+  }
+  clog('success', `Response sent for /${name}`);
+}
+
+function checkKeywords(text) {
+  const lower = text.toLowerCase();
+  const triggers = commands.filter(c => c.type==='keyword' && c.triggers?.some(t=>lower.includes(t)));
+  if (triggers.length) {
+    showTyping();
+    setTimeout(()=>{ hideTyping(); executeGenericResponse(triggers[0], [], triggers[0].name); }, botDelay);
+  }
+}
+
+function btnClick(msgId, label, id) {
+  clog('cmd', `Button clicked: "${label}" (id: ${id||'?'})`);
+  addMessage(username, '😎', `*Clicked button: **${label}***`, false);
+  if (id === 'confirm') {
+    showTyping();
+    setTimeout(()=>{ hideTyping(); addBotMessage([{type:'embed',color:'#23a559',title:'✅ Confirmed',desc:`Action confirmed by ${username}`}]); }, botDelay);
+  } else if (id === 'cancel') {
+    showTyping();
+    setTimeout(()=>{ hideTyping(); addBotMessage('Action cancelled.'); }, 400);
+  } else {
+    showTyping();
+    setTimeout(()=>{ hideTyping(); addBotMessage(`Processing: **${label}**...`); }, botDelay);
+  }
+}
+
+function selectChange(msgId, val, placeholder) {
+  clog('cmd', `Select changed: "${val}"`);
+  showTyping();
+  setTimeout(()=>{ hideTyping(); addBotMessage([{type:'embed',color:'#5865f2',title:'Selection Received',desc:`You selected: **${val}**`}]); }, botDelay);
+}
+
+function showTyping(text='Bot is typing...') {
+  const t = document.getElementById('typing');
+  document.getElementById('typing-text').textContent = text;
+  t.style.display='flex';
+  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+}
+function hideTyping() { document.getElementById('typing').style.display='none'; }
+
+/* ══════════════════════════════════════════════════
+   FILE IMPORT
+══════════════════════════════════════════════════ */
+function importFile(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const code = e.target.result;
+    parseCodeFile(file.name, code);
+    addFileCard(file.name, file.size, code);
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function handleChatFile(input) {
+  const file = input.files[0]; if (!file) return;
+  addMessage(username, '😎', `📎 *Attached file: **${file.name}***`, false);
+  if (file.name.match(/\.(py|js|ts|txt)$/i)) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      parseCodeFile(file.name, e.target.result);
+      toast(`Parsed ${file.name} for commands!`);
+    };
+    reader.readAsText(file);
+  }
+  input.value = '';
+}
+
+function dragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('drag'); }
+function dragLeave(e) { document.getElementById('upload-zone').classList.remove('drag'); }
+function dropFile(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    parseCodeFile(file.name, ev.target.result);
+    addFileCard(file.name, file.size, ev.target.result);
+  };
+  reader.readAsText(file);
+}
+
+function addFileCard(name, size, code) {
+  const cards = document.getElementById('file-cards');
+  const d = document.createElement('div'); d.className='file-card';
+  const ext = name.split('.').pop().toLowerCase();
+  const icons = {py:'🐍',js:'📜',ts:'💎',txt:'📄',json:'📋'};
+  const sizeStr = size > 1024 ? (size/1024).toFixed(1)+'KB' : size+'B';
+  d.innerHTML = `
+    <div class="file-icon">${icons[ext]||'📄'}</div>
+    <div class="file-info">
+      <div class="file-name">${name}</div>
+      <div class="file-size">${sizeStr} • ${ext.toUpperCase()}</div>
+    </div>
+    <div class="file-remove" onclick="this.parentElement.remove()" title="Remove">✕</div>
+  `;
+  cards.appendChild(d);
+  clog('info', `File imported: ${name} (${sizeStr})`);
+}
+
+/* ══════════════════════════════════════════════════
+   CODE PARSER — detects commands from Python/JS/txt
+══════════════════════════════════════════════════ */
+function parseCodeFile(filename, code) {
+  const found = [];
+  const ext = filename.split('.').pop().toLowerCase();
+
+  if (ext === 'py') {
+    // discord.py / interactions patterns
+    const slashPat = /@(?:bot\.|tree\.|client\.|app_commands\.)command\([^)]*name\s*=\s*["'](\w+)["'][^)]*\)|@slash_command\([^)]*name\s*=\s*["'](\w+)["'][^)]*\)/gi;
+    const descPat = /description\s*=\s*["']([^"']+)["']/gi;
+    const funcPat = /async def (\w+)\(/gi;
+    const optPat = /(\w+):\s*(?:str|int|float|bool|discord\.Member|discord\.User|discord\.Role|discord\.Channel|Option)/g;
+
+    let m;
+    while ((m = slashPat.exec(code)) !== null) {
+      const name = m[1] || m[2];
+      // Find description near this match
+      const slice = code.slice(m.index, m.index+300);
+      const descM = /description\s*=\s*["']([^"']+)["']/.exec(slice);
+      found.push({name, desc: descM?descM[1]:'Slash command', icon:'🐍', options:[], responseType:'embed', response:`Command **/${name}** executed successfully!`});
+    }
+
+    // prefix commands @bot.command()
+    const prefixPat = /@(?:bot|client)\.command\([^)]*\)\s*\n\s*async def (\w+)/gi;
+    while ((m = prefixPat.exec(code)) !== null) {
+      found.push({name: m[1], desc:'Prefix command (!'+m[1]+')', icon:'⚡', options:[], responseType:'message', response:`${m[1]} executed!`});
+    }
+  }
+
+  if (ext === 'js' || ext === 'ts') {
+    // discord.js slash commands
+    const slashPat = /\.setName\(['"`](\w+)['"`]\)/gi;
+    const descPat2 = /\.setDescription\(['"`]([^'"`]+)['"`]\)/gi;
+    const optNamePat = /addStringOption|addIntegerOption|addUserOption|addRoleOption|addBooleanOption/gi;
+
+    const names = [...code.matchAll(/\.setName\(['"`](\w+)['"`]\)/gi)].map(m=>m[1]);
+    const descs = [...code.matchAll(/\.setDescription\(['"`]([^'"`]+)['"`]\)/gi)].map(m=>m[1]);
+
+    names.forEach((name,i) => {
+      found.push({name, desc: descs[i]||'Slash command', icon:'📜', options:[], responseType:'embed', response:`**/${name}** executed!`});
+    });
+
+    // on('interactionCreate') commands
+    const ifCmdPat = /commandName\s*===\s*['"`](\w+)['"`]/gi;
+    let m2;
+    while ((m2 = ifCmdPat.exec(code)) !== null) {
+      if (!found.find(c=>c.name===m2[1])) {
+        found.push({name:m2[1], desc:'Interaction command', icon:'📜', options:[], responseType:'embed', response:`${m2[1]} response!`});
+      }
+    }
+  }
+
+  if (ext === 'txt' || ext === 'json') {
+    // Simple format: /commandname - description: response
+    const lines = code.split('\n');
+    lines.forEach(line => {
+      const m = line.match(/^\/(\w+)\s*[-–:]\s*(.+)/);
+      if (m) {
+        const parts = m[2].split(':');
+        found.push({name:m[1], desc:parts[0].trim(), icon:'📝', options:[], responseType:'message', response:parts[1]?.trim()||m[2]});
+      }
+      // also look for command: name patterns
+      const m2 = line.match(/^command[:\s]+(\w+)/i);
+      if (m2 && !found.find(c=>c.name===m2[1])) {
+        found.push({name:m2[1], desc:'Command from file', icon:'📝', options:[], responseType:'message', response:`${m2[1]} executed!`});
+      }
+    });
+  }
+
+  if (found.length) {
+    found.forEach(cmd => {
+      if (!commands.find(c=>c.name===cmd.name)) commands.push(cmd);
+    });
+    clog('success', `Parsed ${found.length} command${found.length!==1?'s':''} from ${filename}`);
+    updateCommandList();
+    rpTab('commands');
+    toast(`Found ${found.length} command${found.length!==1?'s':''} in ${filename}!`);
+    addBotMessage([{
+      type:'embed', color:'#23a559',
+      title:'📁 File Imported Successfully!',
+      desc:`Parsed **${filename}** and found **${found.length} command${found.length!==1?'s':''}**:\n\n${found.map(c=>`• \`/${c.name}\` — ${c.desc}`).join('\n')}\n\nType \`/\` to use them!`,
+      footer:'Bot Sandbox Parser'
+    }]);
+  } else {
+    clog('warn', `No commands detected in ${filename} — try adding manually`);
+    toast(`No commands auto-detected. Add them manually!`, 'warn');
+    addBotMessage([{
+      type:'embed', color:'#f0b232',
+      title:'⚠️ No Commands Auto-Detected',
+      desc:`Couldn't auto-parse commands from **${filename}**.\n\nThis can happen with complex bot structures. Use **+ Add Custom Command** in the right panel to add commands manually!`,
+    }]);
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   TEMPLATES
+══════════════════════════════════════════════════ */
+function loadTemplate(type) {
+  const templates = {
+    basic: {
+      name:'Basic Bot', cmds:[
+        {name:'ping',desc:'Check bot latency',icon:'🏓',responseType:'embed',color:'#23a559',title:'🏓 Pong!',response:'Bot latency: **42ms** | API: **18ms**'},
+        {name:'hello',desc:'Say hello',icon:'👋',responseType:'message',response:'Hello, {user}! 👋'},
+        {name:'help',desc:'Show all commands',icon:'❓',responseType:'embed',color:'#5865f2',title:'📚 Bot Commands',response:'Use `/ping` to check latency\nUse `/hello` to say hello\nUse `/info` to see bot info'},
+        {name:'info',desc:'Bot information',icon:'ℹ️',responseType:'embed',color:'#5865f2',title:'🤖 Bot Info',response:`**Name:** ${botName}\n**Status:** 🟢 Online\n**Servers:** 1 (sandbox)\n**Commands:** 4`},
+      ]
+    },
+    moderation: {
+      name:'Moderation Bot', cmds:[
+        {name:'kick',desc:'Kick a member',icon:'👢',options:[{name:'user',type:'user',required:true},{name:'reason',type:'string',required:false}],responseType:'success',response:'Kicked **{user}** | Reason: {reason}'},
+        {name:'ban',desc:'Ban a member',icon:'🔨',options:[{name:'user',type:'user',required:true},{name:'reason',type:'string',required:false}],responseType:'embed',color:'#f23f43',title:'🔨 Member Banned',response:'Banned **{user}**\nReason: {reason}'},
+        {name:'mute',desc:'Mute a member',icon:'🔇',options:[{name:'user',type:'user',required:true},{name:'duration',type:'string',required:true}],responseType:'success',response:'Muted **{user}** for **{duration}**'},
+        {name:'warn',desc:'Warn a member',icon:'⚠️',options:[{name:'user',type:'user',required:true},{name:'reason',type:'string',required:true}],responseType:'embed',color:'#f0b232',title:'⚠️ Warning Issued',response:'**{user}** has been warned\nReason: **{reason}**'},
+        {name:'clear',desc:'Clear messages',icon:'🗑️',options:[{name:'amount',type:'integer',required:true}],responseType:'success',response:'Cleared **{amount}** messages'},
+        {name:'slowmode',desc:'Set slowmode',icon:'⏱️',options:[{name:'seconds',type:'integer',required:true}],responseType:'success',response:'Slowmode set to **{seconds}s**'},
+      ]
+    },
+    economy: {
+      name:'Economy Bot', cmds:[
+        {name:'balance',desc:'Check your balance',icon:'💰',options:[{name:'user',type:'user',required:false}],responseType:'embed',color:'#f0b232',title:'💰 Wallet',response:'**Balance:** 🪙 1,250 coins\n**Bank:** 🏦 5,000 coins\n**Total:** 💎 6,250 coins'},
+        {name:'daily',desc:'Claim daily reward',icon:'📅',responseType:'embed',color:'#23a559',title:'📅 Daily Claimed!',response:'You claimed your daily reward!\n+🪙 **500 coins**\nStreak: 🔥 **3 days**'},
+        {name:'pay',desc:'Pay another user',icon:'💸',options:[{name:'user',type:'user',required:true},{name:'amount',type:'integer',required:true}],responseType:'success',response:'Sent 🪙 **{amount}** coins to **{user}**!'},
+        {name:'shop',desc:'Open the shop',icon:'🏪',responseType:'embed',color:'#5865f2',title:'🏪 Economy Shop',response:'**Items for sale:**\n🗡️ Sword — 500 coins\n🛡️ Shield — 750 coins\n🧪 Potion — 100 coins',
+          handler:(args)=>{
+            addBotMessage([{type:'embed',color:'#5865f2',title:'🏪 Economy Shop',desc:'**Items for sale:**\n🗡️ Sword — 500 coins\n🛡️ Shield — 750 coins\n🧪 Potion — 100 coins'}],
+              [[{type:'button',label:'Buy Sword',style:'primary',id:'buy-sword',emoji:'🗡️'},{type:'button',label:'Buy Shield',style:'secondary',id:'buy-shield',emoji:'🛡️'},{type:'button',label:'Buy Potion',style:'success',id:'buy-potion',emoji:'🧪'}]]
+            );
+          }
+        },
+        {name:'leaderboard',desc:'See top users',icon:'🏆',responseType:'embed',color:'#f0b232',title:'🏆 Leaderboard',response:'🥇 **Player1** — 12,500 coins\n🥈 **Player2** — 9,800 coins\n🥉 **Player3** — 7,200 coins\n4. **Player4** — 4,100 coins\n5. **Player5** — 2,800 coins'},
+      ]
+    },
+    fun: {
+      name:'Fun Bot', cmds:[
+        {name:'meme',desc:'Get a random meme',icon:'😂',responseType:'embed',color:'#5865f2',title:'😂 Random Meme',response:'Here is a random meme!',image:'😂'},
+        {name:'8ball',desc:'Ask the magic 8ball',icon:'🎱',options:[{name:'question',type:'string',required:true}],responseType:'embed',color:'#7289da',title:'🎱 Magic 8 Ball',handler:(args)=>{
+          const answers=['It is certain','Without a doubt','Yes definitely','You may rely on it','As I see it yes','Most likely','Outlook good','Yes','Signs point to yes','Reply hazy try again','Ask again later','Cannot predict now','Concentrate and ask again','Don\'t count on it','My reply is no','My sources say no','Outlook not so good','Very doubtful'];
+          const a=answers[Math.floor(Math.random()*answers.length)];
+          addBotMessage([{type:'embed',color:a.includes('no')||a.includes('not')||a.includes('don\'t')||a.includes('doubtful')?'#f23f43':a.includes('hazy')||a.includes('again')||a.includes('cannot')?'#f0b232':'#23a559',title:'🎱 Magic 8 Ball',desc:`**Question:** ${args.join(' ')}\n\n**Answer:** ${a}`}]);
+        }},
+        {name:'coinflip',desc:'Flip a coin',icon:'🪙',responseType:'message',handler:()=>{ addBotMessage(`🪙 Flipped a coin: **${Math.random()>.5?'Heads':'Tails'}**!`); }},
+        {name:'roll',desc:'Roll dice',icon:'🎲',options:[{name:'sides',type:'integer',required:false}],handler:(args)=>{ const s=+args[0]||6; addBotMessage(`🎲 Rolled a d${s}: **${Math.floor(Math.random()*s)+1}**`); }},
+        {name:'avatar',desc:'Get a user avatar',icon:'🖼️',options:[{name:'user',type:'user',required:false}],responseType:'embed',color:'#5865f2',title:'🖼️ Avatar',response:'Avatar for **{user}**',image:'👤'},
+        {name:'poll',desc:'Create a poll',icon:'📊',options:[{name:'question',type:'string',required:true}],handler:(args,name)=>{
+          const q=args.join(' ');
+          addBotMessage([{type:'embed',color:'#5865f2',title:'📊 Poll',desc:`**${q}**\n\n✅ Yes: 0 votes\n❌ No: 0 votes`}],
+            [[{type:'button',label:'Yes',style:'success',emoji:'✅',id:'poll-yes'},{type:'button',label:'No',style:'danger',emoji:'❌',id:'poll-no'}]]
+          );
+        }},
+      ]
+    },
+    roblox: {
+      name:'Roblox Bot', cmds:[
+        {name:'verify',desc:'Verify your Roblox account',icon:'🎮',options:[{name:'username',type:'string',required:true}],responseType:'embed',color:'#e8284a',title:'🎮 Roblox Verification',response:'Verifying **{username}**...\n\n✅ Account found!\nPlease add code `VERIFY-1234` to your Roblox bio, then run `/confirm`'},
+        {name:'gameinfo',desc:'Get info about a Roblox game',icon:'🕹️',options:[{name:'game',type:'string',required:true}],handler:(args)=>{
+          addBotMessage([{type:'embed',color:'#e8284a',title:'🕹️ '+args.join(' '),desc:'**Active Players:** 1,245\n**Visits:** 10.5M\n**Likes:** 89%\n**Created:** 2022',footer:'Roblox Game Info • Powered by Roblox API'}]);
+        }},
+        {name:'rank',desc:'Set a users rank',icon:'⭐',options:[{name:'user',type:'user',required:true},{name:'rank',type:'string',required:true}],responseType:'success',response:'Set **{user}** to rank **{rank}** in the group'},
+        {name:'groupinfo',desc:'Get Roblox group info',icon:'👥',responseType:'embed',color:'#e8284a',title:'👥 Group Info',response:'**Members:** 5,432\n**Owner:** RobloxDev\n**Rank:** Member\n**Status:** Public'},
+        {name:'profile',desc:'View a Roblox profile',icon:'👤',options:[{name:'username',type:'string',required:true}],handler:(args)=>{
+          addBotMessage([{type:'embed',color:'#e8284a',author:args.join(' ')+' • Roblox',title:'👤 '+args.join(' '),desc:'**Friends:** 423\n**Followers:** 1,204\n**Following:** 89\n**Join Date:** 2019',thumbnail:'🎮',footer:'Roblox Profile'}]);
+        }},
+      ]
+    }
+  };
+
+  const tpl = templates[type]; if (!tpl) return;
+  tpl.cmds.forEach(cmd => {
+    if (!commands.find(c=>c.name===cmd.name)) commands.push(cmd);
+  });
+  updateCommandList();
+  rpTab('commands');
+  clog('success', `Loaded ${tpl.name} template (${tpl.cmds.length} commands)`);
+  toast(`${tpl.name} loaded!`);
+  addBotMessage([{
+    type:'embed', color:'#23a559',
+    title:`✅ ${tpl.name} Template Loaded!`,
+    desc:`**${tpl.cmds.length} commands** are now available:\n\n${tpl.cmds.map(c=>`• \`/${c.name}\` — ${c.desc}`).join('\n')}\n\nType \`/\` to use them!`,
+    footer:'Try typing /help or /ping'
+  }]);
+}
+
+/* ══════════════════════════════════════════════════
+   COMMAND MANAGEMENT
+══════════════════════════════════════════════════ */
+function updateCommandList() {
+  const list = document.getElementById('cmd-list'); list.innerHTML='';
+  document.getElementById('cmd-count').textContent = commands.length+' commands';
+  document.getElementById('sb-cmd-count').textContent = commands.length+' commands loaded';
+  document.getElementById('sb-text').textContent = `${botName} is online with ${commands.length} commands`;
+
+  commands.forEach((cmd,i) => {
+    const d = document.createElement('div'); d.className='cmd-item';
+    d.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="cmd-name">${cmd.icon||'⚡'} /${cmd.name}</div>
+        <div style="display:flex;gap:4px">
+          <span style="font-size:11px;cursor:pointer;color:var(--dc-text3);padding:2px 5px;border-radius:3px;background:rgba(255,255,255,.06)" onclick="testCmd(${i})">▶ Test</span>
+          <span style="font-size:11px;cursor:pointer;color:var(--dc-error);padding:2px 5px;border-radius:3px;background:rgba(242,63,67,.1)" onclick="removeCmd(${i})">✕</span>
+        </div>
+      </div>
+      <div class="cmd-desc">${cmd.desc||''}</div>
+      ${cmd.options&&cmd.options.length?`<div class="cmd-opts">${cmd.options.map(o=>`<span>${o.required===false?'[':''}${o.name}: ${o.type||'text'}${o.required===false?']':''}</span>`).join('')}</div>`:''}
+    `;
+    d.onclick = (e) => { if(e.target.tagName!=='SPAN') testCmd(i); };
+    list.appendChild(d);
+  });
+}
+
+function testCmd(idx) {
+  const cmd = commands[idx]; if (!cmd) return;
+  const inp = document.getElementById('msg-input');
+  inp.value = '/'+cmd.name+' ';
+  inp.focus();
+  rpTab('import');
+}
+
+function removeCmd(idx) {
+  commands.splice(idx, 1);
+  updateCommandList();
+  clog('warn', 'Command removed');
+}
+
+function addManualCommand() { openModal('add-cmd-modal'); }
+
+function saveNewCommand() {
+  const name = document.getElementById('new-cmd-name').value.trim().replace(/\s/g,'');
+  const desc = document.getElementById('new-cmd-desc').value.trim();
+  const optsRaw = document.getElementById('new-cmd-opts').value.trim();
+  const resp = document.getElementById('new-cmd-resp').value.trim();
+  const type = document.getElementById('new-cmd-type').value;
+  if (!name) { toast('Command name required!','error'); return; }
+
+  const options = optsRaw ? optsRaw.split(',').map(o=>{
+    o=o.trim();
+    const optional=o.startsWith('?');
+    return {name:o.replace('?',''),type:'string',required:!optional};
+  }) : [];
+
+  commands.push({name, desc, options, responseType:type, response:resp||`${name} executed!`, icon:'⚡'});
+  updateCommandList();
+  closeModal('add-cmd-modal');
+  clog('success', `Added command: /${name}`);
+  toast(`Command /${name} added!`);
+  ['new-cmd-name','new-cmd-desc','new-cmd-opts','new-cmd-resp'].forEach(id=>document.getElementById(id).value='');
+}
+
+/* ══════════════════════════════════════════════════
+   UI HELPERS
+══════════════════════════════════════════════════ */
+function setChannel(name, topic) {
+  currentChannel = name; lastAuthor = null;
+  document.getElementById('ch-name-display').textContent = name;
+  document.getElementById('ch-topic-display').textContent = topic;
+  document.getElementById('msg-input').placeholder = `Message #${name}`;
+  document.querySelectorAll('.ch-item').forEach(el=>el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+function clearMessages() {
+  const m = document.getElementById('messages'); m.innerHTML=''; lastAuthor=null;
+  addDivider('Messages cleared');
+  clog('info', 'Messages cleared');
+}
+
+function rpTab(id, el) {
+  document.querySelectorAll('.rp-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.rp-panel').forEach(p=>p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else document.querySelectorAll('.rp-tab')[['import','commands','console'].indexOf(id)]?.classList.add('active');
+  const p = document.getElementById('rp-'+id); if(p) p.classList.add('active');
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id)}));
+
+function saveSettings() {
+  const u = document.getElementById('set-username').value.trim();
+  if (u) {
+    username = u;
+    document.getElementById('display-username').textContent = u;
+    document.getElementById('profile-name').textContent = u;
+  }
+  botDelay = +document.getElementById('set-delay').value || 800;
+  closeModal('settings-modal');
+  toast('Settings saved!');
+}
+
+function updateBotIdentity() {
+  botName = document.getElementById('bot-name-inp').value || 'TestBot';
+  botAvatar = document.getElementById('bot-avatar-inp').value || '🤖';
+}
+
+function clearConsole() { document.getElementById('console-out').innerHTML=''; }
+
+function clog(type, text) {
+  const c = document.getElementById('console-out');
+  const now = new Date();
+  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const cls = {info:'clog-info',warn:'clog-warn',error:'clog-error',success:'clog-success',cmd:'clog-cmd'}[type]||'';
+  const icons = {info:'ℹ',warn:'⚠',error:'✗',success:'✓',cmd:'→'}[type]||'·';
+  const d = document.createElement('div');
+  d.className = cls;
+  d.innerHTML = `<span style="opacity:.5">[${ts}]</span> ${icons} ${text}`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+function toast(msg, type='success') {
+  const c = document.getElementById('toast-container');
+  const d = document.createElement('div');
+  const colors={success:'#23a559',error:'#f23f43',warn:'#f0b232',info:'#5865f2'};
+  d.style.cssText=`background:#111214;border:1px solid ${colors[type]||colors.success};color:#fff;padding:8px 18px;border-radius:6px;font-size:13px;animation:popIn .15s ease;box-shadow:0 4px 12px rgba(0,0,0,.5);white-space:nowrap`;
+  d.textContent = msg;
+  c.appendChild(d);
+  setTimeout(()=>{d.style.opacity='0';d.style.transition='opacity .2s';setTimeout(()=>d.remove(),200);},2500);
+}
+</script>
+</body>
+</html>
