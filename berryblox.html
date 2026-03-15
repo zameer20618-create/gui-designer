@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BerryBlox – Roblox Script AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0b12;
+    --surface: #16131f;
+    --surface2: #1e1a2e;
+    --border: #2a2440;
+    --berry1: #c0392b;
+    --berry2: #8e44ad;
+    --berry3: #2980b9;
+    --berry4: #e74c3c;
+    --accent: #d63aff;
+    --accent2: #ff4d6d;
+    --text: #f0eaf8;
+    --muted: #8a7fa0;
+    --code: #1a1628;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: -20%;
+    width: 160%;
+    height: 80%;
+    background: radial-gradient(ellipse at 30% 40%, rgba(192,57,43,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(142,68,173,0.14) 0%, transparent 55%),
+                radial-gradient(ellipse at 60% 80%, rgba(41,128,185,0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,11,18,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo img {
+    width: 36px;
+    height: 36px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 6px rgba(214,58,255,0.5));
+  }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ff4d6d 0%, #d63aff 50%, #4dabf7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .header-btn {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  main {
+    position: relative;
+    z-index: 1;
+    padding: 0 0 100px;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    text-align: center;
+    padding: 48px 20px 32px;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(214,58,255,0.12);
+    border: 1px solid rgba(214,58,255,0.3);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .hero-badge span { font-size: 14px; }
+
+  .hero h1 {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 14px;
+    letter-spacing: -1px;
+  }
+
+  .hero h1 .line2 {
+    background: linear-gradient(135deg, #ff4d6d, #d63aff, #4dabf7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  /* ===== CHAT WINDOW ===== */
+  .chat-container {
+    margin: 24px 16px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  }
+
+  .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .chat-header-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .chat-header span {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-left: 2px;
+  }
+
+  .chat-messages {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 280px;
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Message bubbles */
+  .msg {
+    display: flex;
+    gap: 10px;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .msg.user { flex-direction: row-reverse; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  .msg-avatar.bot {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+  }
+
+  .msg-avatar.user {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .msg-bubble {
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .msg.bot .msg-bubble {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+    color: var(--text);
+  }
+
+  .msg.user .msg-bubble {
+    background: linear-gradient(135deg, rgba(214,58,255,0.25), rgba(255,77,109,0.2));
+    border: 1px solid rgba(214,58,255,0.3);
+    border-top-right-radius: 4px;
+    color: var(--text);
+  }
+
+  /* Code block inside message */
+  .code-block {
+    background: var(--code);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+    overflow-x: auto;
+    color: #cdd9e5;
+  }
+
+  .code-block .kw { color: #d63aff; }
+  .code-block .fn { color: #4dabf7; }
+  .code-block .str { color: #a8e89c; }
+  .code-block .num { color: #ffb347; }
+  .code-block .cm { color: #5a5370; }
+
+  /* Typing indicator */
+  .typing {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    border-top-left-radius: 4px;
+    width: fit-content;
+  }
+
+  .typing-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: bounce 1.4s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* ===== INPUT BAR ===== */
+  .input-area {
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .input-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 10px 12px;
+    transition: border-color 0.2s;
+  }
+
+  .input-wrap:focus-within {
+    border-color: rgba(214,58,255,0.5);
+    box-shadow: 0 0 0 3px rgba(214,58,255,0.08);
+  }
+
+  .chat-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    resize: none;
+    max-height: 100px;
+    line-height: 1.5;
+    min-height: 20px;
+  }
+
+  .chat-input::placeholder { color: var(--muted); }
+
+  .send-btn {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+
+  .send-btn:active { transform: scale(0.92); opacity: 0.85; }
+
+  .send-btn svg { width: 16px; height: 16px; }
+
+  /* ===== QUICK PROMPTS ===== */
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0 20px;
+    margin: 28px 0 12px;
+  }
+
+  .prompts-scroll {
+    display: flex;
+    gap: 10px;
+    padding: 4px 16px 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .prompts-scroll::-webkit-scrollbar { display: none; }
+
+  .prompt-chip {
+    flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 9px 14px;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .prompt-chip span { font-size: 15px; }
+
+  .prompt-chip:active {
+    background: var(--surface2);
+    border-color: rgba(214,58,255,0.4);
+  }
+
+  /* ===== FEATURES GRID ===== */
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 16px;
+    margin-top: 4px;
+  }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+
+  .feature-card:active {
+    transform: scale(0.97);
+    border-color: rgba(214,58,255,0.4);
+  }
+
+  .feature-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .feature-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .feature-card p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .fi-1 { background: rgba(231,76,60,0.15); }
+  .fi-2 { background: rgba(142,68,173,0.15); }
+  .fi-3 { background: rgba(41,128,185,0.15); }
+  .fi-4 { background: rgba(46,213,115,0.15); }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    background: rgba(13,11,18,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+    cursor: pointer;
+    gap: 3px;
+    transition: color 0.2s;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .nav-item.active { color: var(--accent); }
+
+  .nav-item svg { width: 22px; height: 22px; }
+
+  .nav-item .nav-dot {
+    width: 4px; height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: none;
+  }
+  .nav-item.active .nav-dot { display: block; }
+
+  /* ===== HISTORY ITEMS ===== */
+  .history-list {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .history-item:active { border-color: rgba(214,58,255,0.3); }
+
+  .history-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(214,58,255,0.2), rgba(255,77,109,0.2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .history-info { flex: 1; overflow: hidden; }
+
+  .history-info h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .history-info span {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ===== PAGE SYSTEM ===== */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Subtle scroll shimmer */
+  .chat-messages::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    display: block;
+    height: 20px;
+    background: linear-gradient(transparent, var(--surface));
+    pointer-events: none;
+    margin-top: -20px;
+  }
+
+  /* Pixel sparkle decoration */
+  .sparkle {
+    position: absolute;
+    width: 6px; height: 6px;
+    background: currentColor;
+    opacity: 0.6;
+    animation: sparkle 2s ease-in-out infinite;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  }
+
+  @keyframes sparkle {
+    0%,100% { transform: scale(0.5) rotate(0deg); opacity: 0.3; }
+    50% { transform: scale(1) rotate(180deg); opacity: 0.8; }
+  }
+
+  .model-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    padding: 3px 8px;
+    border-radius: 8px;
+    background: rgba(214,58,255,0.1);
+    border: 1px solid rgba(214,58,255,0.2);
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  /* Script output card */
+  .output-card {
+    background: var(--code);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+
+  .output-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .output-card-header span {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .copy-btn {
+    background: rgba(214,58,255,0.15);
+    border: 1px solid rgba(214,58,255,0.3);
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+  }
+
+  .output-card pre {
+    padding: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+    color: #cdd9e5;
+    overflow-x: auto;
+    white-space: pre;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <img src="/mnt/user-data/uploads/D84840CD-F503-42B7-9468-EE1FEC8AA3E1.png" alt="BerryBlox Logo" id="logoImg">
+    <span class="logo-text">BerryBlox</span>
+  </div>
+  <button class="header-btn" onclick="showPage('chat')">New Script</button>
+</header>
+
+<!-- MAIN -->
+<main>
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-badge"><span>🍓</span> AI Script Generator</div>
+      <h1>
+        Scripts for<br>
+        <span class="line2">any Roblox game</span>
+      </h1>
+      <p>Generate GUIs, admin panels, combat systems, and more — just describe what you need.</p>
+    </div>
+
+    <!-- Mini Chat Preview -->
+    <div class="chat-container">
+      <div class="chat-header">
+        <div class="chat-header-dot" style="background:#ff4d6d"></div>
+        <div class="chat-header-dot" style="background:#d63aff"></div>
+        <div class="chat-header-dot" style="background:#4dabf7"></div>
+        <span>BerryBlox AI</span>
+        <span class="model-tag">Berry-3</span>
+      </div>
+      <div class="chat-messages" id="home-chat">
+        <div class="msg bot" style="animation-delay:0.1s">
+          <div class="msg-avatar bot">🍓</div>
+          <div class="msg-bubble">
+            Hey! I'm BerryBlox AI. Tell me what script you need and I'll write it for your Roblox game instantly. 🎮
+          </div>
+        </div>
+        <div class="msg user" style="animation-delay:0.3s">
+          <div class="msg-avatar user">👤</div>
+          <div class="msg-bubble">Make me a speed boost GUI with a button</div>
+        </div>
+        <div class="msg bot" style="animation-delay:0.5s">
+          <div class="msg-avatar bot">🍓</div>
+          <div class="msg-bubble">
+            Here's your Speed Boost GUI script! ✨
+            <div class="output-card">
+              <div class="output-card-header">
+                <span>🍇 Lua Script</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre><span class="cm">-- BerryBlox Speed Boost GUI</span>
+<span class="kw">local</span> player = <span class="fn">game</span>.Players.LocalPlayer
+<span class="kw">local</span> gui = Instance.<span class="fn">new</span>(<span class="str">"ScreenGui"</span>)
+<span class="kw">local</span> btn = Instance.<span class="fn">new</span>(<span class="str">"TextButton"</span>)
+
+gui.Parent = player.PlayerGui
+btn.Parent = gui
+btn.Size = UDim2.<span class="fn">new</span>(<span class="num">0</span>, <span class="num">160</span>, <span class="num">0</span>, <span class="num">50</span>)
+btn.Position = UDim2.<span class="fn">new</span>(<span class="num">0.5</span>,<span class="num">-80</span>,<span class="num">0.8</span>,<span class="num">0</span>)
+btn.Text = <span class="str">"⚡ Speed Boost"</span>
+btn.BackgroundColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>)
+btn.TextColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>)
+
+btn.MouseButton1Click:<span class="fn">Connect</span>(<span class="kw">function</span>()
+  player.Character.Humanoid.WalkSpeed = <span class="num">50</span>
+  task.<span class="fn">wait</span>(<span class="num">5</span>)
+  player.Character.Humanoid.WalkSpeed = <span class="num">16</span>
+<span class="kw">end</span>)</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="input-area">
+        <div class="input-wrap">
+          <textarea class="chat-input" placeholder="Describe your script..." rows="1" id="homeInput" oninput="autoResize(this)" onkeydown="handleKey(event,'homeInput')"></textarea>
+          <button class="send-btn" onclick="sendFromHome()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Prompts -->
+    <p class="section-title">Quick Scripts</p>
+    <div class="prompts-scroll">
+      <button class="prompt-chip" onclick="quickPrompt('Admin panel GUI')"><span>👑</span> Admin Panel</button>
+      <button class="prompt-chip" onclick="quickPrompt('Kill aura script')"><span>⚔️</span> Kill Aura</button>
+      <button class="prompt-chip" onclick="quickPrompt('Auto farm script')"><span>🌾</span> Auto Farm</button>
+      <button class="prompt-chip" onclick="quickPrompt('ESP player tracker')"><span>👁️</span> ESP Hack</button>
+      <button class="prompt-chip" onclick="quickPrompt('Infinite jump script')"><span>🦘</span> Inf Jump</button>
+      <button class="prompt-chip" onclick="quickPrompt('Teleport GUI')"><span>🌀</span> Teleport</button>
+    </div>
+
+    <!-- Features -->
+    <p class="section-title">Features</p>
+    <div class="features-grid">
+      <div class="feature-card" onclick="showPage('chat')">
+        <div class="feature-icon fi-1">🍓</div>
+        <h3>GUI Builder</h3>
+        <p>Beautiful custom GUIs with any style</p>
+      </div>
+      <div class="feature-card" onclick="showPage('chat')">
+        <div class="feature-icon fi-2">🫐</div>
+        <h3>Any Game</h3>
+        <p>Scripts that work across all Roblox games</p>
+      </div>
+      <div class="feature-card" onclick="showPage('chat')">
+        <div class="feature-icon fi-3">🫒</div>
+        <h3>Instant Output</h3>
+        <p>Get clean Lua code in seconds</p>
+      </div>
+      <div class="feature-card" onclick="showPage('chat')">
+        <div class="feature-icon fi-4">🍇</div>
+        <h3>Explain Mode</h3>
+        <p>Ask it to explain any line of code</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT PAGE -->
+  <div class="page" id="page-chat">
+    <div style="padding: 16px 16px 0">
+      <div style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">New Script Session</div>
+      <div style="font-size: 12px; color: var(--muted);">Powered by Berry-3 AI</div>
+    </div>
+    <div class="chat-container" style="margin-top: 14px;">
+      <div class="chat-header">
+        <div class="chat-header-dot" style="background:#ff4d6d"></div>
+        <div class="chat-header-dot" style="background:#d63aff"></div>
+        <div class="chat-header-dot" style="background:#4dabf7"></div>
+        <span>BerryBlox AI</span>
+        <span class="model-tag">Berry-3</span>
+      </div>
+      <div class="chat-messages" id="chat-msgs">
+        <div class="msg bot">
+          <div class="msg-avatar bot">🍓</div>
+          <div class="msg-bubble">
+            Ready to script! 🍇 Tell me what you need — a GUI, a game mechanic, an admin system, anything!
+          </div>
+        </div>
+      </div>
+      <div class="input-area">
+        <div class="input-wrap">
+          <textarea class="chat-input" placeholder="e.g. Make a rainbow trail GUI..." rows="1" id="chatInput" oninput="autoResize(this)" onkeydown="handleKey(event,'chatInput')"></textarea>
+          <button class="send-btn" onclick="sendChat()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY PAGE -->
+  <div class="page" id="page-history">
+    <div style="padding: 24px 20px 16px">
+      <div style="font-size: 22px; font-weight: 800; margin-bottom: 4px;">Script History</div>
+      <div style="font-size: 13px; color: var(--muted);">Your recent generations</div>
+    </div>
+    <div class="history-list">
+      <div class="history-item">
+        <div class="history-icon">⚡</div>
+        <div class="history-info">
+          <h4>Speed Boost GUI Script</h4>
+          <span>2 mins ago · 34 lines</span>
+        </div>
+      </div>
+      <div class="history-item">
+        <div class="history-icon">👑</div>
+        <div class="history-info">
+          <h4>Admin Panel with Kick/Ban</h4>
+          <span>1 hour ago · 112 lines</span>
+        </div>
+      </div>
+      <div class="history-item">
+        <div class="history-icon">🌾</div>
+        <div class="history-info">
+          <h4>Auto Farm for Blox Fruits</h4>
+          <span>Yesterday · 88 lines</span>
+        </div>
+      </div>
+      <div class="history-item">
+        <div class="history-icon">👁️</div>
+        <div class="history-info">
+          <h4>ESP Player Highlighter</h4>
+          <span>2 days ago · 56 lines</span>
+        </div>
+      </div>
+      <div class="history-item">
+        <div class="history-icon">🦘</div>
+        <div class="history-info">
+          <h4>Infinite Jump + Fly Toggle</h4>
+          <span>3 days ago · 45 lines</span>
+        </div>
+      </div>
+      <div class="history-item">
+        <div class="history-icon">🌈</div>
+        <div class="history-info">
+          <h4>Rainbow Trail Effect</h4>
+          <span>5 days ago · 61 lines</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS PAGE -->
+  <div class="page" id="page-settings">
+    <div style="padding: 24px 20px 16px">
+      <div style="font-size: 22px; font-weight: 800; margin-bottom: 4px;">Settings</div>
+      <div style="font-size: 13px; color: var(--muted);">Customize BerryBlox</div>
+    </div>
+
+    <div style="padding: 0 16px; display: flex; flex-direction: column; gap: 10px;">
+
+      <!-- Model -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;">AI Model</div>
+        <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:14px;font-weight:700;">Berry-3 <span class="model-tag">Active</span></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Fastest script generation</div>
+          </div>
+          <div style="width:20px;height:20px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+        </div>
+        <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);">
+          <div>
+            <div style="font-size:14px;font-weight:700;">Berry-3 Opus</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Most powerful, complex scripts</div>
+          </div>
+          <div style="width:20px;height:20px;border:2px solid var(--border);border-radius:50%;"></div>
+        </div>
+      </div>
+
+      <!-- Output Style -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;">Output Style</div>
+        <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:14px;font-weight:600;">Add comments to code</span>
+          <div class="toggle active" id="toggle1" onclick="toggleSwitch(this)">
+            <div class="toggle-thumb"></div>
+          </div>
+        </div>
+        <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);">
+          <span style="font-size:14px;font-weight:600;">Auto-copy after generate</span>
+          <div class="toggle" id="toggle2" onclick="toggleSwitch(this)">
+            <div class="toggle-thumb"></div>
+          </div>
+        </div>
+        <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);">
+          <span style="font-size:14px;font-weight:600;">Show line numbers</span>
+          <div class="toggle active" id="toggle3" onclick="toggleSwitch(this)">
+            <div class="toggle-thumb"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center;">
+        <img src="/mnt/user-data/uploads/D84840CD-F503-42B7-9468-EE1FEC8AA3E1.png" style="width:52px;height:52px;image-rendering:pixelated;margin-bottom:8px;filter:drop-shadow(0 0 8px rgba(214,58,255,0.4))">
+        <div style="font-size:18px;font-weight:800;background:linear-gradient(135deg,#ff4d6d,#d63aff,#4dabf7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">BerryBlox</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">Version 1.0.0 · Berry-3 Engine</div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="showPage('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+    Home
+    <div class="nav-dot"></div>
+  </div>
+  <div class="nav-item" id="nav-chat" onclick="showPage('chat')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+    Script
+    <div class="nav-dot"></div>
+  </div>
+  <div class="nav-item" id="nav-history" onclick="showPage('history')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <polyline points="12 6 12 12 16 14"></polyline>
+    </svg>
+    History
+    <div class="nav-dot"></div>
+  </div>
+  <div class="nav-item" id="nav-settings" onclick="showPage('settings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </svg>
+    Settings
+    <div class="nav-dot"></div>
+  </div>
+</nav>
+
+<style>
+  .toggle {
+    width: 46px; height: 26px;
+    background: var(--border);
+    border-radius: 13px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.25s;
+    flex-shrink: 0;
+  }
+  .toggle.active { background: var(--accent); }
+  .toggle-thumb {
+    width: 20px; height: 20px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px; left: 3px;
+    transition: left 0.25s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .toggle.active .toggle-thumb { left: 23px; }
+</style>
+
+<script>
+  // Load logo as base64 to avoid path issues when saved as file
+  const logoImg = document.getElementById('logoImg');
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  }
+
+  function handleKey(e, id) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (id === 'homeInput') sendFromHome();
+      else sendChat();
+    }
+  }
+
+  function sendFromHome() {
+    const input = document.getElementById('homeInput');
+    const val = input.value.trim();
+    if (!val) return;
+    input.value = '';
+    input.style.height = 'auto';
+    showPage('chat');
+    setTimeout(() => addUserMsg(val), 100);
+    setTimeout(() => addBotMsg(val), 100);
+  }
+
+  function quickPrompt(text) {
+    showPage('chat');
+    setTimeout(() => {
+      addUserMsg(text);
+      addBotMsg(text);
+    }, 100);
+  }
+
+  function sendChat() {
+    const input = document.getElementById('chatInput');
+    const val = input.value.trim();
+    if (!val) return;
+    input.value = '';
+    input.style.height = 'auto';
+    addUserMsg(val);
+    addBotMsg(val);
+  }
+
+  function addUserMsg(text) {
+    const container = document.getElementById('chat-msgs');
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.innerHTML = `<div class="msg-avatar user">👤</div><div class="msg-bubble">${escHtml(text)}</div>`;
+    container.appendChild(div);
+    scrollChat();
+  }
+
+  function addBotMsg(prompt) {
+    const container = document.getElementById('chat-msgs');
+
+    // Typing indicator
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'msg bot';
+    typingDiv.id = 'typing-indicator';
+    typingDiv.innerHTML = `<div class="msg-avatar bot">🍓</div><div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+    container.appendChild(typingDiv);
+    scrollChat();
+
+    setTimeout(() => {
+      typingDiv.remove();
+      const script = generateScript(prompt);
+      const div = document.createElement('div');
+      div.className = 'msg bot';
+      div.innerHTML = `<div class="msg-avatar bot">🍓</div>
+        <div class="msg-bubble">
+          Here's your script for: <strong>${escHtml(prompt)}</strong> 🍇
+          <div class="output-card">
+            <div class="output-card-header">
+              <span>🍓 Lua Script</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre>${script}</pre>
+          </div>
+        </div>`;
+      container.appendChild(div);
+      scrollChat();
+    }, 1800);
+  }
+
+  function scrollChat() {
+    const c = document.getElementById('chat-msgs');
+    c.scrollTop = c.scrollHeight;
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function generateScript(prompt) {
+    const p = prompt.toLowerCase();
+    if (p.includes('speed')) return speedScript();
+    if (p.includes('fly') || p.includes('flight')) return flyScript();
+    if (p.includes('admin')) return adminScript();
+    if (p.includes('jump')) return jumpScript();
+    if (p.includes('esp')) return espScript();
+    if (p.includes('farm')) return farmScript();
+    if (p.includes('teleport') || p.includes('tp')) return teleportScript();
+    if (p.includes('rainbow') || p.includes('trail')) return trailScript();
+    if (p.includes('gui') || p.includes('panel')) return guiScript(prompt);
+    return genericScript(prompt);
+  }
+
+  function speedScript() {
+    return `<span class="cm">-- 🍓 BerryBlox: Speed GUI</span>
+<span class="kw">local</span> Players = <span class="fn">game</span>:GetService(<span class="str">"Players"</span>)
+<span class="kw">local</span> player = Players.LocalPlayer
+<span class="kw">local</span> gui = Instance.<span class="fn">new</span>(<span class="str">"ScreenGui"</span>, player.PlayerGui)
+<span class="kw">local</span> frame = Instance.<span class="fn">new</span>(<span class="str">"Frame"</span>, gui)
+frame.Size = UDim2.<span class="fn">new</span>(<span class="num">0</span>, <span class="num">180</span>, <span class="num">0</span>, <span class="num">60</span>)
+frame.Position = UDim2.<span class="fn">new</span>(<span class="num">0.5</span>,<span class="num">-90</span>,<span class="num">0.85</span>,<span class="num">0</span>)
+frame.BackgroundColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">20</span>,<span class="num">15</span>,<span class="num">30</span>)
+<span class="kw">local</span> btn = Instance.<span class="fn">new</span>(<span class="str">"TextButton"</span>, frame)
+btn.Size = UDim2.<span class="fn">new</span>(<span class="num">1</span>,<span class="num">0</span>,<span class="num">1</span>,<span class="num">0</span>)
+btn.Text = <span class="str">"⚡ Speed x3"</span>
+btn.BackgroundColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">192</span>,<span class="num">57</span>,<span class="num">43</span>)
+btn.TextColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>)
+btn.Font = Enum.Font.GothamBold
+btn.TextSize = <span class="num">16</span>
+btn.MouseButton1Click:<span class="fn">Connect</span>(<span class="kw">function</span>()
+  <span class="kw">local</span> char = player.Character
+  <span class="kw">if</span> char <span class="kw">then</span>
+    char.Humanoid.WalkSpeed = <span class="num">50</span>
+    btn.Text = <span class="str">"✅ Speed Active!"</span>
+    task.<span class="fn">wait</span>(<span class="num">5</span>)
+    char.Humanoid.WalkSpeed = <span class="num">16</span>
+    btn.Text = <span class="str">"⚡ Speed x3"</span>
+  <span class="kw">end</span>
+<span class="kw">end</span>)`;
+  }
+
+  function flyScript() {
+    return `<span class="cm">-- 🍓 BerryBlox: Fly Toggle</span>
+<span class="kw">local</span> player = <span class="fn">game</span>.Players.LocalPlayer
+<span class="kw">local</span> flying = <span class="kw">false</span>
+<span class="kw">local</span> bodyVel
+
+<span class="kw">local</span> gui = Instance.<span class="fn">new</span>(<span class="str">"ScreenGui"</span>, player.PlayerGui)
+<span class="kw">local</span> btn = Instance.<span class="fn">new</span>(<span class="str">"TextButton"</span>, gui)
+btn.Size = UDim2.<span class="fn">new</span>(<span class="num">0</span>,<span class="num">140</span>,<span class="num">0</span>,<span class="num">44</span>)
+btn.Position = UDim2.<span class="fn">new</span>(<span class="num">0.5</span>,<span class="num">-70</span>,<span class="num">0.87</span>,<span class="num">0</span>)
+btn.Text = <span class="str">"🕊️ Fly: OFF"</span>
+btn.BackgroundColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">41</span>,<span class="num">128</span>,<span class="num">185</span>)
+btn.TextColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>)
+btn.Font = Enum.Font.GothamBold
+
+btn.MouseButton1Click:<span class="fn">Connect</span>(<span class="kw">function</span>()
+  flying = <span class="kw">not</span> flying
+  <span class="kw">if</span> flying <span class="kw">then</span>
+    btn.Text = <span class="str">"🕊️ Fly: ON"</span>
+    btn.BackgroundColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">46</span>,<span class="num">213</span>,<span class="num">115</span>)
+    <span class="cm">-- fly logic here</span>
+  <span class="kw">else</span>
+    btn.Text = <span class="str">"🕊️ Fly: OFF"</span>
+    btn.BackgroundColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">41</span>,<span class="num">128</span>,<span class="num">185</span>)
+  <span class="kw">end</span>
+<span class="kw">end</span>)`;
+  }
+
+  function adminScript() {
+    return `<span class="cm">-- 🍓 BerryBlox: Admin Panel GUI</span>
+<span class="kw">local</span> player = <span class="fn">game</span>.Players.LocalPlayer
+<span class="kw">local</span> gui = Instance.<span class="fn">new</span>(<span class="str">"ScreenGui"</span>, player.PlayerGui)
+<span class="kw">local</span> panel = Instance.<span class="fn">new</span>(<span class="str">"Frame"</span>, gui)
+panel.Size = UDim2.<span class="fn">new</span>(<span class="num">0</span>,<span class="num">240</span>,<span class="num">0</span>,<span class="num">300</span>)
+panel.Position = UDim2.<span class="fn">new</span>(<span class="num">0.5</span>,<span class="num">-120</span>,<span class="num">0.1</span>,<span class="num">0</span>)
+panel.BackgroundColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">18</span>,<span class="num">14</span>,<span class="num">28</span>)
+panel.Visible = <span class="kw">false</span>
+
+<span class="kw">local</span> cmds = {<span class="str">"Kick Player"</span>,<span class="str">"Ban Player"</span>,<span class="str">"Teleport"</span>,<span class="str">"Give Speed"</span>}
+<span class="kw">for</span> i, cmd <span class="kw">in</span> <span class="fn">ipairs</span>(cmds) <span class="kw">do</span>
+  <span class="kw">local</span> b = Instance.<span class="fn">new</span>(<span class="str">"TextButton"</span>, panel)
+  b.Size = UDim2.<span class="fn">new</span>(<span class="num">1</span>,<span class="num">-20</span>,<span class="num">0</span>,<span class="num">44</span>)
+  b.Position = UDim2.<span class="fn">new</span>(<span class="num">0</span>,<span class="num">10</span>,<span class="num">0</span>,<span class="num">10</span>+(i-<span class="num">1</span>)*<span class="num">54</span>)
+  b.Text = <span class="str">"👑 "</span>..cmd
+  b.BackgroundColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">142</span>,<span class="num">68</span>,<span class="num">173</span>)
+  b.TextColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>)
+<span class="kw">end</span>`;
+  }
+
+  function jumpScript() {
+    return `<span class="cm">-- 🍓 BerryBlox: Infinite Jump</span>
+<span class="kw">local</span> UIS = <span class="fn">game</span>:GetService(<span class="str">"UserInputService"</span>)
+<span class="kw">local</span> player = <span class="fn">game</span>.Players.LocalPlayer
+<span class="kw">local</span> enabled = <span class="kw">true</span>
+
+UIS.JumpRequest:<span class="fn">Connect</span>(<span class="kw">function</span>()
+  <span class="kw">if</span> <span class="kw">not</span> enabled <span class="kw">then</span> <span class="kw">return</span> <span class="kw">end</span>
+  <span class="kw">local</span> char = player.Character
+  <span class="kw">if</span> char <span class="kw">and</span> char:FindFirstChild(<span class="str">"Humanoid"</span>) <span class="kw">then</span>
+    char.Humanoid:<span class="fn">ChangeState</span>(Enum.HumanoidStateType.Jumping)
+  <span class="kw">end</span>
+<span class="kw">end</span>)
+
+<span class="cm">-- Toggle GUI</span>
+<span class="kw">local</span> gui = Instance.<span class="fn">new</span>(<span class="str">"ScreenGui"</span>, player.PlayerGui)
+<span class="kw">local</span> btn = Instance.<span class="fn">new</span>(<span class="str">"TextButton"</span>, gui)
+btn.Size = UDim2.<span class="fn">new</span>(<span class="num">0</span>,<span class="num">150</span>,<span class="num">0</span>,<span class="num">40</span>)
+btn.Position = UDim2.<span class="fn">new</span>(<span class="num">0.5</span>,<span class="num">-75</span>,<span class="num">0.9</span>,<span class="num">0</span>)
+btn.Text = <span class="str">"🦘 Inf Jump: ON"</span>
+btn.BackgroundColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">46</span>,<span class="num">213</span>,<span class="num">115</span>)`;
+  }
+
+  function espScript() {
+    return `<span class="cm">-- 🍓 BerryBlox: ESP Highlighter</span>
+<span class="kw">local</span> Players = <span class="fn">game</span>:GetService(<span class="str">"Players"</span>)
+<span class="kw">local</span> localPlayer = Players.LocalPlayer
+
+<span class="kw">local function</span> <span class="fn">addESP</span>(player)
+  player.CharacterAdded:<span class="fn">Connect</span>(<span class="kw">function</span>(char)
+    <span class="kw">local</span> highlight = Instance.<span class="fn">new</span>(<span class="str">"Highlight"</span>)
+    highlight.FillColor = Color3.<span class="fn">fromRGB</span>(<span class="num">214</span>,<span class="num">58</span>,<span class="num">255</span>)
+    highlight.OutlineColor = Color3.<span class="fn">fromRGB</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>)
+    highlight.FillTransparency = <span class="num">0.5</span>
+    highlight.Parent = char
+  <span class="kw">end</span>)
+<span class="kw">end</span>
+
+Players.PlayerAdded:<span class="fn">Connect</span>(<span class="fn">addESP</span>)
+<span class="kw">for</span> _, p <span class="kw">in</span> Players:GetPlayers() <span class="kw">do</span>
+  <span class="kw">if</span> p ~= localPlayer <span class="kw">then</span>
+    <span class="fn">addESP</span>(p)
+  <span class="kw">end</span>
+<span class="kw">end</span>`;
+  }
+
+  function farmScript() {
+    return `<span class="cm">-- 🍓 BerryBlox: Auto Farm Loop</span>
+<span class="kw">local</span> player = <span class="fn">game</span>.Players.LocalPlayer
+<span class="kw">local</span> farming = <span class="kw">false</span>
+
+<span class="kw">local function</span> <span class="fn">farm</span>()
+  <span class="kw">while</span> farming <span class="kw">do</span>
+    <span class="kw">local</span> char = player.Character
+    <span class="kw">if</span> char <span class="kw">then</span>
+      <span class="cm">-- Add your farming logic here</span>
+      <span class="cm">-- e.g. click NPCs, collect items</span>
+      <span class="fn">print</span>(<span class="str">"🌾 Farming..."</span>)
+    <span class="kw">end</span>
+    task.<span class="fn">wait</span>(<span class="num">0.1</span>)
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="kw">local</span> gui = Instance.<span class="fn">new</span>(<span class="str">"ScreenGui"</span>, player.PlayerGui)
+<span class="kw">local</span> btn = Instance.<span class="fn">new</span>(<span class="str">"TextButton"</span>, gui)
+btn.Size = UDim2.<span class="fn">new</span>(<span class="num">0</span>,<span class="num">160</span>,<span class="num">0</span>,<span class="num">46</span>)
+btn.Position = UDim2.<span class="fn">new</span>(<span class="num">0.5</span>,<span class="num">-80</span>,<span class="num">0.88</span>,<span class="num">0</span>)
+btn.Text = <span class="str">"🌾 Auto Farm: OFF"</span>
+btn.MouseButton1Click:<span class="fn">Connect</span>(<span class="kw">function</span>()
+  farming = <span class="kw">not</span> farming
+  btn.Text = farming <span class="kw">and</span> <span class="str">"🌾 Farming..."</span> <span class="kw">or</span> <span class="str">"🌾 Auto Farm: OFF"</span>
+  <span class="kw">if</span> farming <span class="kw">then</span> task.<span class="fn">spawn</span>(<span class="fn">farm</span>) <span class="kw">end</span>
+<span class="kw">end</span>)`;
+  }
+
+  function teleportScript() {
+    return `<span class="cm">-- 🍓 BerryBlox: Teleport GUI</span>
+<span class="kw">local</span> player = <span class="fn">game</span>.Players.LocalPlayer
+<span class="kw">local</span> gui = Instance.<span class="fn">new</span>(<span class="str">"ScreenGui"</span>, player.PlayerGui)
+<span class="kw">local</span> frame = Instance.<span class="fn">new</span>(<span class="str">"Frame"</span>, gui)
+frame.Size = UDim2.<span class="fn">new</span>(<span class="num">0</span>,<span class="num">220</span>,<span class="num">0</span>,<span class="num">180</span>)
+frame.Position = UDim2.<span class="fn">new</span>(<span class="num">0.5</span>,<span class="num">-110</span>,<span class="num">0.5</span>,<span class="num">-90</span>)
+
+<span class="kw">local</span> xInput = Instance.<span class="fn">new</span>(<span class="str">"TextBox"</span>, frame)
+xInput.PlaceholderText = <span class="str">"X coordinate"</span>
+xInput.Size = UDim2.<span class="fn">new</span>(<span class="num">1</span>,<span class="num">-20</span>,<span class="num">0</span>,<span class="num">36</span>)
+xInput.Position = UDim2.<span class="fn">new</span>(<span class="num">0</span>,<span class="num">10</span>,<span class="num">0</span>,<span class="num">10</span>)
+
+<span class="kw">local</span> zInput = Instance.<span class="fn">new</span>(<span class="str">"TextBox"</span>, frame)
+zInput.PlaceholderText = <span class="str">"Z coordinate"</span>
+zInput.Size = UDim2.<span class="fn">new</span>(<span class="num">1</span>,<span class="num">-20</span>,<span class="num">0</span>,<span class="num">36</span>)
+zInput.Position = UDim2.<span class="fn">new</span>(<span class="num">0</span>,<span class="num">10</span>,<span class="num">0</span>,<span class="num">56</span>)
+
+<span class="kw">local</span> tpBtn = Instance.<span class="fn">new</span>(<span class="str">"TextButton"</span>, frame)
+tpBtn.Size = UDim2.<span class="fn">new</span>(<span class="num">1</span>,<span class="num">-20</span>,<span class="num">0</span>,<span class="num">44</span>)
+tpBtn.Position = UDim2.<span class="fn">new</span>(<span class="num">0</span>,<span class="num">10</span>,<span class="num">0</span>,<span class="num">104</span>)
+tpBtn.Text = <span class="str">"🌀 Teleport!"</span>
+tpBtn.MouseButton1Click:<span class="fn">Connect</span>(<span class="kw">function</span>()
+  <span class="kw">local</span> x = <span class="fn">tonumber</span>(xInput.Text) <span class="kw">or</span> <span class="num">0</span>
+  <span class="kw">local</span> z = <span class="fn">tonumber</span>(zInput.Text) <span class="kw">or</span> <span class="num">0</span>
+  player.Character:MoveTo(Vector3.<span class="fn">new</span>(x,<span class="num">5</span>,z))
+<span class="kw">end</span>)`;
+  }
+
+  function trailScript() {
+    return `<span class="cm">-- 🍓 BerryBlox: Rainbow Trail</span>
+<span class="kw">local</span> player = <span class="fn">game</span>.Players.LocalPlayer
+<span class="kw">local</span> colors = {
+  Color3.<span class="fn">fromRGB</span>(<span class="num">255</span>,<span class="num">0</span>,<span class="num">0</span>),
+  Color3.<span class="fn">fromRGB</span>(<span class="num">255</span>,<span class="num">165</span>,<span class="num">0</span>),
+  Color3.<span class="fn">fromRGB</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">0</span>),
+  Color3.<span class="fn">fromRGB</span>(<span class="num">0</span>,<span class="num">200</span>,<span class="num">100</span>),
+  Color3.<span class="fn">fromRGB</span>(<span class="num">41</span>,<span class="num">128</span>,<span class="num">185</span>),
+  Color3.<span class="fn">fromRGB</span>(<span class="num">142</span>,<span class="num">68</span>,<span class="num">173</span>),
+}
+<span class="kw">local</span> i = <span class="num">1</span>
+
+player.CharacterAdded:<span class="fn">Connect</span>(<span class="kw">function</span>(char)
+  <span class="kw">local</span> trail = Instance.<span class="fn">new</span>(<span class="str">"Trail"</span>, char)
+  trail.Lifetime = <span class="num">0.5</span>
+  trail.MinLength = <span class="num">0</span>
+  task.<span class="fn">spawn</span>(<span class="kw">function</span>()
+    <span class="kw">while</span> trail.Parent <span class="kw">do</span>
+      trail.Color = ColorSequence.<span class="fn">new</span>(colors[i])
+      i = (i % #colors) + <span class="num">1</span>
+      task.<span class="fn">wait</span>(<span class="num">0.1</span>)
+    <span class="kw">end</span>
+  <span class="kw">end</span>)
+<span class="kw">end</span>)`;
+  }
+
+  function guiScript(prompt) {
+    return `<span class="cm">-- 🍓 BerryBlox: Custom GUI</span>
+<span class="cm">-- Prompt: ${prompt.substring(0,40)}</span>
+<span class="kw">local</span> player = <span class="fn">game</span>.Players.LocalPlayer
+<span class="kw">local</span> gui = Instance.<span class="fn">new</span>(<span class="str">"ScreenGui"</span>)
+<span class="kw">local</span> main = Instance.<span class="fn">new</span>(<span class="str">"Frame"</span>)
+
+gui.Name = <span class="str">"BerryBloxGUI"</span>
+gui.ResetOnSpawn = <span class="kw">false</span>
+gui.Parent = player.PlayerGui
+
+main.Name = <span class="str">"MainFrame"</span>
+main.Parent = gui
+main.BackgroundColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">20</span>,<span class="num">14</span>,<span class="num">30</span>)
+main.BorderSizePixel = <span class="num">0</span>
+main.Position = UDim2.<span class="fn">new</span>(<span class="num">0.5</span>,<span class="num">-120</span>,<span class="num">0.3</span>,<span class="num">0</span>)
+main.Size = UDim2.<span class="fn">new</span>(<span class="num">0</span>,<span class="num">240</span>,<span class="num">0</span>,<span class="num">200</span>)
+
+<span class="kw">local</span> corner = Instance.<span class="fn">new</span>(<span class="str">"UICorner"</span>, main)
+corner.CornerRadius = UDim.<span class="fn">new</span>(<span class="num">0</span>,<span class="num">12</span>)
+
+<span class="kw">local</span> title = Instance.<span class="fn">new</span>(<span class="str">"TextLabel"</span>, main)
+title.Size = UDim2.<span class="fn">new</span>(<span class="num">1</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">40</span>)
+title.Text = <span class="str">"🍓 BerryBlox GUI"</span>
+title.TextColor3 = Color3.<span class="fn">fromRGB</span>(<span class="num">255</span>,<span class="num">255</span>,<span class="num">255</span>)
+title.BackgroundTransparency = <span class="num">1</span>
+title.Font = Enum.Font.GothamBold`;
+  }
+
+  function genericScript(prompt) {
+    return `<span class="cm">-- 🍓 BerryBlox AI Script</span>
+<span class="cm">-- Request: ${prompt.substring(0,50)}</span>
+<span class="kw">local</span> Players = <span class="fn">game</span>:GetService(<span class="str">"Players"</span>)
+<span class="kw">local</span> RunService = <span class="fn">game</span>:GetService(<span class="str">"RunService"</span>)
+<span class="kw">local</span> player = Players.LocalPlayer
+
+<span class="cm">-- Initialize script</span>
+<span class="kw">local</span> <span class="fn">BerryBlox</span> = {}
+BerryBlox.Version = <span class="str">"1.0.0"</span>
+BerryBlox.Active = <span class="kw">true</span>
+
+<span class="kw">local function</span> <span class="fn">init</span>()
+  <span class="fn">print</span>(<span class="str">"🍓 BerryBlox Script loaded!"</span>)
+  <span class="fn">print</span>(<span class="str">"Player: "</span> .. player.Name)
+  <span class="cm">-- Your custom logic goes here</span>
+  <span class="cm">-- Generated for: ${prompt.substring(0,30)}</span>
+<span class="kw">end</span>
+
+player.CharacterAdded:<span class="fn">Connect</span>(<span class="kw">function</span>()
+  <span class="fn">init</span>()
+<span class="kw">end</span>)
+
+<span class="kw">if</span> player.Character <span class="kw">then</span>
+  <span class="fn">init</span>()
+<span class="kw">end</span>`;
+  }
+
+  function copyCode(btn) {
+    const pre = btn.closest('.output-card').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1800);
+    }).catch(() => {
+      btn.textContent = 'Done!';
+      setTimeout(() => btn.textContent = 'Copy', 1800);
+    });
+  }
+
+  function toggleSwitch(el) {
+    el.classList.toggle('active');
+  }
+
+  // Convert logo to base64 for standalone file use
+  (function() {
+    const img = document.getElementById('logoImg');
+    const canvas = document.createElement('canvas');
+    canvas.width = 100; canvas.height = 100;
+    const ctx = canvas.getContext('2d');
+    const tempImg = new Image();
+    tempImg.crossOrigin = 'anonymous';
+    tempImg.onload = function() {
+      ctx.drawImage(tempImg, 0, 0, 100, 100);
+      img.src = canvas.toDataURL('image/png');
+    };
+    tempImg.src = img.src;
+  })();
+</script>
+</body>
+</html>
