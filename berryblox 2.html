@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BerryBlox – Roblox Script AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d0b12; --surface:#16131f; --surface2:#1e1a2e; --border:#2a2440;
+  --accent:#d63aff; --accent2:#ff4d6d; --blue:#4dabf7;
+  --text:#f0eaf8; --muted:#8a7fa0; --code:#12101c;
+  --green:#2ecc71; --red:#e74c3c;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow-x:hidden}
+body::before{content:'';position:fixed;top:-30%;left:-20%;width:160%;height:80%;
+  background:radial-gradient(ellipse at 30% 40%,rgba(192,57,43,.12) 0%,transparent 60%),
+  radial-gradient(ellipse at 80% 20%,rgba(142,68,173,.14) 0%,transparent 55%),
+  radial-gradient(ellipse at 60% 80%,rgba(41,128,185,.1) 0%,transparent 50%);
+  pointer-events:none;z-index:0}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;background:rgba(13,11,18,.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);height:56px;padding:0 16px;
+  display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-text{font-size:20px;font-weight:800;
+  background:linear-gradient(135deg,#ff4d6d,#d63aff,#4dabf7);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.5px}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.new-btn{background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;color:#fff;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;
+  padding:8px 16px;border-radius:20px;cursor:pointer}
+.key-btn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+  font-family:'Syne',sans-serif;font-weight:700;font-size:11px;
+  padding:8px 12px;border-radius:20px;cursor:pointer}
+.key-btn.ok{border-color:rgba(46,204,113,.4);color:var(--green)}
+
+/* PAGES */
+main{position:relative;z-index:1;padding-bottom:82px}
+.page{display:none}.page.active{display:block}
+
+/* HERO */
+.hero{text-align:center;padding:38px 20px 22px}
+.badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(214,58,255,.12);border:1px solid rgba(214,58,255,.3);
+  border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;
+  color:var(--accent);letter-spacing:.8px;text-transform:uppercase;margin-bottom:16px}
+.hero h1{font-size:30px;font-weight:800;line-height:1.15;margin-bottom:11px;letter-spacing:-1px}
+.grad{background:linear-gradient(135deg,#ff4d6d,#d63aff,#4dabf7);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:14px;line-height:1.7;max-width:310px;margin:0 auto}
+
+/* CHAT WRAP */
+.cwrap{margin:18px 16px 0;background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+.ctop{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 14px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.ctop-l{display:flex;align-items:center;gap:7px}
+.dot{width:8px;height:8px;border-radius:50%}
+.ctop span{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.mtag{font-size:10px;font-weight:700;color:var(--accent);padding:2px 7px;border-radius:6px;
+  background:rgba(214,58,255,.1);border:1px solid rgba(214,58,255,.2)}
+.clr-btn{background:none;border:none;color:var(--muted);font-family:'Syne',sans-serif;
+  font-size:11px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:8px}
+.clr-btn:active{background:var(--border)}
+
+/* MESSAGES */
+.msgs{padding:14px;display:flex;flex-direction:column;gap:13px;
+  min-height:240px;max-height:390px;overflow-y:auto;scroll-behavior:smooth}
+.msgs::-webkit-scrollbar{width:3px}
+.msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.msg{display:flex;gap:10px;animation:fu .3s ease both}
+.msg.user{flex-direction:row-reverse}
+@keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.av{width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.av.bot{background:linear-gradient(135deg,var(--accent2),var(--accent))}
+.av.usr{background:var(--surface2);border:1px solid var(--border);font-size:12px;color:var(--muted)}
+.bbl{max-width:82%;padding:10px 13px;border-radius:16px;font-size:13px;line-height:1.65}
+.msg.bot .bbl{background:var(--surface2);border:1px solid var(--border);border-top-left-radius:4px}
+.msg.user .bbl{background:linear-gradient(135deg,rgba(214,58,255,.22),rgba(255,77,109,.18));
+  border:1px solid rgba(214,58,255,.3);border-top-right-radius:4px}
+.bbl.err{background:rgba(231,76,60,.1)!important;border-color:rgba(231,76,60,.4)!important}
+
+/* TYPING */
+.typing{display:flex;align-items:center;gap:4px;padding:10px 13px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:16px;border-top-left-radius:4px;width:fit-content}
+.td{width:6px;height:6px;background:var(--accent);border-radius:50%;
+  animation:bo 1.4s ease-in-out infinite}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes bo{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+/* CODE */
+.cc{background:var(--code);border:1px solid var(--border);border-radius:12px;margin-top:10px;overflow:hidden}
+.cch{display:flex;align-items:center;justify-content:space-between;
+  padding:7px 12px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.cch span{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.cpbtn{background:rgba(214,58,255,.15);border:1px solid rgba(214,58,255,.3);
+  color:var(--accent);font-family:'Syne',sans-serif;font-size:10px;font-weight:700;
+  padding:3px 10px;border-radius:6px;cursor:pointer}
+.cc pre{padding:12px;font-family:'Space Mono',monospace;font-size:11px;line-height:1.85;
+  color:#cdd9e5;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
+.kw{color:#d63aff}.fn{color:#4dabf7}.str{color:#a8e89c}.num{color:#ffb347}.cm{color:#4a4060}
+.ic{background:var(--code);padding:2px 6px;border-radius:4px;
+  font-family:'Space Mono',monospace;font-size:11px;color:#d63aff}
+
+/* INPUT */
+.iarea{padding:10px;border-top:1px solid var(--border);background:var(--surface2)}
+.iwrap{display:flex;align-items:flex-end;gap:8px;background:var(--bg);
+  border:1px solid var(--border);border-radius:14px;padding:9px 11px;transition:border-color .2s}
+.iwrap:focus-within{border-color:rgba(214,58,255,.5);box-shadow:0 0 0 3px rgba(214,58,255,.07)}
+.cin{flex:1;background:none;border:none;outline:none;color:var(--text);
+  font-family:'Syne',sans-serif;font-size:14px;resize:none;max-height:110px;
+  min-height:20px;line-height:1.5}
+.cin::placeholder{color:var(--muted)}
+.sbtn{width:34px;height:34px;background:linear-gradient(135deg,var(--accent2),var(--accent));
+  border:none;border-radius:10px;color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:transform .15s,opacity .15s}
+.sbtn:active{transform:scale(.92)}
+.sbtn:disabled{opacity:.4;cursor:not-allowed}
+.sbtn svg{width:15px;height:15px}
+
+/* CHIPS */
+.stitle{font-size:11px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:1px;padding:0 20px;margin:24px 0 9px}
+.chips{display:flex;gap:9px;padding:2px 16px 6px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:8px 12px;font-family:'Syne',sans-serif;
+  font-size:12px;font-weight:600;color:var(--text);cursor:pointer;
+  white-space:nowrap;display:flex;align-items:center;gap:5px;transition:border-color .2s}
+.chip:active{border-color:rgba(214,58,255,.5)}
+
+/* FEATURES */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;margin-top:4px}
+.fcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:14px;cursor:pointer;transition:border-color .2s,transform .15s}
+.fcard:active{transform:scale(.97);border-color:rgba(214,58,255,.4)}
+.fico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:17px;margin-bottom:8px}
+.fcard h3{font-size:13px;font-weight:700;margin-bottom:3px;line-height:1.3}
+.fcard p{font-size:11px;color:var(--muted);line-height:1.5}
+.fi1{background:rgba(231,76,60,.15)}.fi2{background:rgba(142,68,173,.15)}
+.fi3{background:rgba(41,128,185,.15)}.fi4{background:rgba(46,204,113,.15)}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,11,18,.95);
+  backdrop-filter:blur(20px);border-top:1px solid var(--border);
+  display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:10px 0;gap:3px;cursor:pointer;color:var(--muted);font-size:10px;
+  font-weight:700;text-transform:uppercase;letter-spacing:.4px;transition:color .2s}
+.ni.active{color:var(--accent)}
+.ni svg{width:22px;height:22px}
+.nid{width:4px;height:4px;background:var(--accent);border-radius:50%;display:none}
+.ni.active .nid{display:block}
+
+/* HISTORY */
+.hlist{padding:0 16px;display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.hitem{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:13px;display:flex;align-items:center;gap:11px;cursor:pointer}
+.hitem:active{border-color:rgba(214,58,255,.35)}
+.hico{width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(214,58,255,.2),rgba(255,77,109,.2));
+  display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.hinfo{flex:1;overflow:hidden}
+.hinfo h4{font-size:13px;font-weight:700;margin-bottom:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hinfo span{font-size:11px;color:var(--muted)}
+
+/* SETTINGS */
+.sbody{padding:0 16px;display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.scardtitle{padding:11px 16px;border-bottom:1px solid var(--border);
+  font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+.srow{padding:13px 16px;display:flex;align-items:center;justify-content:space-between}
+.srow+.srow{border-top:1px solid var(--border)}
+.srow span{font-size:14px;font-weight:600}
+.srow small{font-size:11px;color:var(--muted);display:block;margin-top:2px}
+.tog{width:46px;height:26px;background:var(--border);border-radius:13px;
+  position:relative;cursor:pointer;transition:background .25s;flex-shrink:0}
+.tog.on{background:var(--accent)}
+.tth{width:20px;height:20px;background:#fff;border-radius:50%;
+  position:absolute;top:3px;left:3px;transition:left .25s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.tog.on .tth{left:23px}
+.kdisp{font-size:11px;color:var(--green);font-family:'Space Mono',monospace;
+  background:rgba(46,204,113,.1);padding:4px 10px;border-radius:8px;
+  border:1px solid rgba(46,204,113,.2)}
+.kdisp.none{color:var(--muted);background:var(--surface2);border-color:var(--border)}
+.abtn{background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;color:#fff;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 20px;
+  border-radius:12px;cursor:pointer;width:100%;margin-top:4px}
+.dbtn{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:var(--red);
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;padding:10px 20px;
+  border-radius:12px;cursor:pointer;width:100%;margin-top:6px}
+.kiwrap{padding:0 16px 12px}
+.kin{width:100%;background:var(--code);border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;color:var(--text);font-family:'Space Mono',monospace;
+  font-size:12px;outline:none;margin-bottom:8px}
+.kin:focus{border-color:rgba(214,58,255,.5)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);
+  backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:24px;width:100%;max-width:360px}
+.mlogo{text-align:center;margin-bottom:16px}
+.modal h2{font-size:20px;font-weight:800;margin-bottom:6px}
+.modal p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.modal input{width:100%;background:var(--code);border:1px solid var(--border);
+  border-radius:12px;padding:12px 14px;color:var(--text);
+  font-family:'Space Mono',monospace;font-size:12px;outline:none;margin-bottom:9px}
+.modal input:focus{border-color:rgba(214,58,255,.5)}
+.merr{font-size:12px;color:var(--red);margin-bottom:9px;display:none}
+.msave{width:100%;background:linear-gradient(135deg,var(--accent2),var(--accent));
+  border:none;color:#fff;font-family:'Syne',sans-serif;font-weight:700;
+  font-size:14px;padding:13px;border-radius:12px;cursor:pointer}
+.mskip{width:100%;background:none;border:none;color:var(--muted);
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:600;
+  padding:10px;cursor:pointer;margin-top:4px}
+.mhint{font-size:11px;color:var(--muted);text-align:center;margin-top:9px;line-height:1.6}
+.mhint a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="keyModal">
+  <div class="modal">
+    <div class="mlogo">
+      <div style="font-size:38px">🍓</div>
+      <div style="font-size:20px;font-weight:800;background:linear-gradient(135deg,#ff4d6d,#d63aff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">BerryBlox AI</div>
+    </div>
+    <h2>Enter API Key</h2>
+    <p>BerryBlox uses Claude AI to generate real, high-quality Roblox scripts. Paste your Anthropic API key to get started — it's stored only on your device.</p>
+    <input type="password" id="mKeyIn" placeholder="sk-ant-api03-..." autocomplete="off">
+    <div class="merr" id="mErr">❌ Invalid key — must start with sk-ant-</div>
+    <button class="msave" onclick="saveKey()">🍇 Let's Script!</button>
+    <button class="mskip" onclick="closeModal()">Skip for now</button>
+    <p class="mhint">Get a free key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></p>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div style="font-size:26px;filter:drop-shadow(0 0 6px rgba(214,58,255,.5))">🍓</div>
+    <span class="logo-text">BerryBlox</span>
+  </div>
+  <div class="hdr-r">
+    <button class="key-btn" id="keyBtn" onclick="showModal()">🔑 Key</button>
+    <button class="new-btn" onclick="newChat()">+ New</button>
+  </div>
+</header>
+
+<main>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="badge">🍓 Powered by Claude AI</div>
+    <h1>Scripts for<br><span class="grad">any Roblox game</span></h1>
+    <p>Generate GUIs, admin panels, combat systems and more — or just ask how to script anything!</p>
+  </div>
+
+  <div class="cwrap">
+    <div class="ctop">
+      <div class="ctop-l">
+        <div class="dot" style="background:#ff4d6d"></div>
+        <div class="dot" style="background:#d63aff"></div>
+        <div class="dot" style="background:#4dabf7"></div>
+        <span>BerryBlox AI</span>
+        <span class="mtag">Claude Sonnet</span>
+      </div>
+    </div>
+    <div class="msgs" id="home-msgs">
+      <div class="msg bot">
+        <div class="av bot">🍓</div>
+        <div class="bbl">Hey! I'm BerryBlox, your Roblox scripting AI 🎮 Ask me to write any script or ask how to script anything!</div>
+      </div>
+    </div>
+    <div class="iarea">
+      <div class="iwrap">
+        <textarea class="cin" id="homeIn" placeholder="Describe your script or ask anything..." rows="1"
+          oninput="rsz(this)" onkeydown="hk(event,'home')"></textarea>
+        <button class="sbtn" onclick="fromHome()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <p class="stitle">Quick Scripts</p>
+  <div class="chips">
+    <button class="chip" onclick="qp('Write a complete speed boost GUI script with a toggle button, UICorner, and nice styling')">⚡ Speed GUI</button>
+    <button class="chip" onclick="qp('Write a complete fly script with toggle button GUI')">🕊️ Fly Toggle</button>
+    <button class="chip" onclick="qp('Write a full admin panel GUI with kick, ban, speed boost, and teleport to player commands')">👑 Admin Panel</button>
+    <button class="chip" onclick="qp('Write an ESP player highlighter using Highlight instances that shows all players through walls')">👁️ ESP Hack</button>
+    <button class="chip" onclick="qp('Write an infinite jump script with toggle GUI button')">🦘 Inf Jump</button>
+    <button class="chip" onclick="qp('Write a smooth teleport GUI where I can type X Y Z coordinates')">🌀 Teleport GUI</button>
+    <button class="chip" onclick="qp('Write a rainbow trail effect script that cycles through colors')">🌈 Rainbow Trail</button>
+    <button class="chip" onclick="qp('Write a noclip script that lets me walk through walls, with toggle')">👻 Noclip</button>
+    <button class="chip" onclick="qp('Write a kill aura script that damages nearby players')">⚔️ Kill Aura</button>
+    <button class="chip" onclick="qp('Write an auto farm loop script with a start/stop GUI button')">🌾 Auto Farm</button>
+  </div>
+
+  <p class="stitle">Learn Scripting</p>
+  <div class="chips">
+    <button class="chip" onclick="qp('Explain how RemoteEvents and RemoteFunctions work in Roblox with a complete example')">📡 RemoteEvents</button>
+    <button class="chip" onclick="qp('How do I save and load player data using DataStoreService? Show a full example')">💾 DataStores</button>
+    <button class="chip" onclick="qp('How do I use TweenService to animate GUI elements? Give examples')">✨ Tweening GUIs</button>
+    <button class="chip" onclick="qp('What is the difference between Script, LocalScript and ModuleScript in Roblox?')">📚 Script Types</button>
+    <button class="chip" onclick="qp('How do I make a custom gun system in Roblox with proper client-server architecture?')">🔫 Gun System</button>
+    <button class="chip" onclick="qp('How do I debug errors in Roblox Studio? Common mistakes beginners make?')">🐛 Debugging</button>
+  </div>
+
+  <p class="stitle">Features</p>
+  <div class="fgrid">
+    <div class="fcard" onclick="gochat()">
+      <div class="fico fi1">🍓</div>
+      <h3>Real AI Scripts</h3>
+      <p>Claude writes complete, working Lua code</p>
+    </div>
+    <div class="fcard" onclick="gochat()">
+      <div class="fico fi2">💬</div>
+      <h3>Full Conversation</h3>
+      <p>Ask follow-ups, refine scripts, iterate</p>
+    </div>
+    <div class="fcard" onclick="gochat()">
+      <div class="fico fi3">📖</div>
+      <h3>Learn Scripting</h3>
+      <p>Tutorials and explanations on any topic</p>
+    </div>
+    <div class="fcard" onclick="gochat()">
+      <div class="fico fi4">🫐</div>
+      <h3>Any Game</h3>
+      <p>Scripts for any Roblox game or mechanic</p>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="page" id="page-chat">
+  <div style="padding:16px 16px 0;display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-size:18px;font-weight:800">Script Session</div>
+      <div style="font-size:12px;color:var(--muted)">Claude Sonnet · Full conversation</div>
+    </div>
+    <button class="clr-btn" onclick="clearChat()">Clear</button>
+  </div>
+  <div class="cwrap" style="margin-top:12px">
+    <div class="ctop">
+      <div class="ctop-l">
+        <div class="dot" style="background:#ff4d6d"></div>
+        <div class="dot" style="background:#d63aff"></div>
+        <div class="dot" style="background:#4dabf7"></div>
+        <span>BerryBlox AI</span>
+        <span class="mtag">Claude Sonnet</span>
+      </div>
+    </div>
+    <div class="msgs" id="chat-msgs">
+      <div class="msg bot">
+        <div class="av bot">🍓</div>
+        <div class="bbl">Ready to script! 🍇 Ask me to generate any Roblox script, or ask me how to build something — I remember our whole conversation!</div>
+      </div>
+    </div>
+    <div class="iarea">
+      <div class="iwrap">
+        <textarea class="cin" id="chatIn" placeholder="e.g. Make a kill aura with a nice GUI..." rows="1"
+          oninput="rsz(this)" onkeydown="hk(event,'chat')"></textarea>
+        <button class="sbtn" id="sbtn" onclick="doSend()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="page" id="page-history">
+  <div style="padding:22px 20px 14px">
+    <div style="font-size:22px;font-weight:800;margin-bottom:3px">Script History</div>
+    <div style="font-size:13px;color:var(--muted)">Tap any to re-run it</div>
+  </div>
+  <div class="hlist" id="hlist">
+    <div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">No scripts yet — start chatting!</div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div style="padding:22px 20px 14px">
+    <div style="font-size:22px;font-weight:800;margin-bottom:3px">Settings</div>
+    <div style="font-size:13px;color:var(--muted)">Customize BerryBlox</div>
+  </div>
+  <div class="sbody">
+
+    <div class="scard">
+      <div class="scardtitle">🔑 Anthropic API Key</div>
+      <div class="srow">
+        <div>
+          <span id="kLabel">No key set</span>
+          <small id="kSub">Required to generate AI scripts</small>
+        </div>
+        <span class="kdisp none" id="kDisp">None</span>
+      </div>
+      <div class="kiwrap" id="kEditArea" style="display:none">
+        <input class="kin" id="sKeyIn" type="password" placeholder="sk-ant-api03-...">
+        <button class="abtn" onclick="saveSettingsKey()">Save Key</button>
+      </div>
+      <div style="padding:0 16px 14px;display:flex;flex-direction:column;gap:6px">
+        <button class="abtn" onclick="toggleKEdit()">✏️ Change Key</button>
+        <button class="dbtn" onclick="delKey()">🗑️ Remove Key</button>
+      </div>
+    </div>
+
+    <div class="scard">
+      <div class="scardtitle">⚙️ Preferences</div>
+      <div class="srow">
+        <div><span>Comments in code</span><small>AI adds -- comments to scripts</small></div>
+        <div class="tog on" id="tog1" onclick="this.classList.toggle('on')"><div class="tth"></div></div>
+      </div>
+      <div class="srow">
+        <div><span>Auto-copy scripts</span><small>Copy to clipboard after generating</small></div>
+        <div class="tog" id="tog2" onclick="this.classList.toggle('on')"><div class="tth"></div></div>
+      </div>
+    </div>
+
+    <div class="scard" style="text-align:center;padding:20px">
+      <div style="font-size:38px;margin-bottom:8px">🍓</div>
+      <div style="font-size:18px;font-weight:800;background:linear-gradient(135deg,#ff4d6d,#d63aff,#4dabf7);-webkit-background-clip:text;-webkit-text-fill-color:transparent">BerryBlox</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px">v2.0.0 · Claude Sonnet Engine</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.7">
+        The best Roblox script AI.<br>
+        API key: <span style="color:var(--accent)">console.anthropic.com</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <div class="ni active" id="ni-home" onclick="showPage('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home<div class="nid"></div>
+  </div>
+  <div class="ni" id="ni-chat" onclick="gochat()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Script<div class="nid"></div>
+  </div>
+  <div class="ni" id="ni-history" onclick="showPage('history')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    History<div class="nid"></div>
+  </div>
+  <div class="ni" id="ni-settings" onclick="showPage('settings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Settings<div class="nid"></div>
+  </div>
+</nav>
+
+<script>
+/* ── STATE ── */
+let conv = [];   // [{role,content}]
+let busy = false;
+let apiKey = localStorage.getItem('bb_key') || '';
+let sHist = JSON.parse(localStorage.getItem('bb_hist') || '[]');
+
+const SYS = `You are BerryBlox AI — the world's best Roblox Lua scripting assistant inside the BerryBlox mobile app.
+
+EXPERTISE:
+- Roblox Luau (LocalScript, Script, ModuleScript)
+- All services: Players, RunService, UserInputService, TweenService, ReplicatedStorage, DataStoreService, HttpService, etc.
+- GUI: ScreenGui, Frame, TextButton, TextLabel, ImageLabel, ScrollingFrame, UICorner, UIGradient, UIListLayout, UIPadding, UIStroke, etc.
+- Game mechanics, datastores, remote events/functions
+- Exploit scripts: speed, fly, ESP, noclip, aimbot, kill aura, auto farm, teleport, infinite jump, etc.
+- Debugging and teaching beginners
+
+SCRIPT RULES — always follow:
+1. Write COMPLETE, fully working Lua/Luau — no placeholders ever
+2. Use task.wait() not wait(), task.spawn() not spawn()
+3. GUIs: always UICorner for rounded corners, polished colors, good UDim2 sizing
+4. Add UIStroke for borders when it looks good
+5. Use pcall() for error-prone operations
+6. Use proper API: game:GetService(), Instance.new(), UDim2.new(), Color3.fromRGB()
+7. Always add clear -- comments explaining each section
+8. Make scripts production-quality and copy-paste ready
+
+FORMAT:
+- ALL code in triple backtick lua blocks: \`\`\`lua\\n...\\n\`\`\`
+- After generating, briefly explain how to use it (where to put it, what it does)
+- For questions, be detailed and educational with code examples
+- Be friendly, enthusiastic, and use 🍓 emoji occasionally`;
+
+/* ── API KEY ── */
+function showModal(){document.getElementById('keyModal').classList.add('show');document.getElementById('mKeyIn').value=apiKey}
+function closeModal(){document.getElementById('keyModal').classList.remove('show')}
+function saveKey(){
+  const v=document.getElementById('mKeyIn').value.trim();
+  const e=document.getElementById('mErr');
+  if(!v.startsWith('sk-ant-')){e.style.display='block';return}
+  e.style.display='none'; apiKey=v; localStorage.setItem('bb_key',v);
+  closeModal(); updateKeyUI();
+}
+function delKey(){if(!confirm('Remove API key?'))return; apiKey=''; localStorage.removeItem('bb_key'); updateKeyUI()}
+function toggleKEdit(){const a=document.getElementById('kEditArea'); a.style.display=a.style.display==='none'?'block':'none'; document.getElementById('sKeyIn').value=apiKey}
+function saveSettingsKey(){
+  const v=document.getElementById('sKeyIn').value.trim();
+  if(v&&!v.startsWith('sk-ant-')){alert('Invalid key format');return}
+  if(v){apiKey=v;localStorage.setItem('bb_key',v)}
+  document.getElementById('kEditArea').style.display='none'; updateKeyUI();
+}
+function updateKeyUI(){
+  const b=document.getElementById('keyBtn'),l=document.getElementById('kLabel'),s=document.getElementById('kSub'),d=document.getElementById('kDisp');
+  if(apiKey){b.className='key-btn ok';b.textContent='✅ Key';l.textContent='API Key Active';s.textContent='BerryBlox AI is ready';d.className='kdisp';d.textContent=apiKey.slice(0,12)+'...'}
+  else{b.className='key-btn';b.textContent='🔑 Key';l.textContent='No key set';s.textContent='Required for AI scripts';d.className='kdisp none';d.textContent='None'}
+}
+
+/* ── NAV ── */
+function showPage(n){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(i=>i.classList.remove('active'));
+  document.getElementById('page-'+n).classList.add('active');
+  document.getElementById('ni-'+n).classList.add('active');
+  window.scrollTo(0,0);
+}
+function gochat(){showPage('chat')}
+function newChat(){conv=[];clearChat();showPage('chat')}
+
+/* ── INPUT ── */
+function rsz(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px'}
+function hk(e,ctx){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ctx==='home'?fromHome():doSend()}}
+function fromHome(){
+  const el=document.getElementById('homeIn'),v=el.value.trim();
+  if(!v)return; el.value=''; el.style.height='auto';
+  showPage('chat'); setTimeout(()=>send(v),120);
+}
+function qp(text){if(!apiKey){showModal();return} showPage('chat'); setTimeout(()=>send(text),120)}
+function doSend(){
+  const el=document.getElementById('chatIn'),v=el.value.trim();
+  if(!v||busy)return; el.value=''; el.style.height='auto'; send(v);
+}
+
+/* ── CLAUDE API ── */
+async function send(text){
+  if(!apiKey){showModal();return}
+  if(busy)return;
+  conv.push({role:'user',content:text});
+  addUser(text);
+  const tid='t'+Date.now(); addTyping(tid);
+  busy=true; setDis(true);
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,system:SYS,messages:conv})
+    });
+    rmTyping(tid);
+    if(!r.ok){
+      const e=await r.json().catch(()=>({}));
+      if(r.status===401){apiKey='';localStorage.removeItem('bb_key');updateKeyUI();addErr('❌ Invalid API key — tap the key button to fix it.');showModal()}
+      else addErr('❌ Error '+r.status+': '+(e?.error?.message||'Something went wrong'));
+      conv.pop(); return;
+    }
+    const d=await r.json(); const reply=d.content?.[0]?.text||'';
+    conv.push({role:'assistant',content:reply});
+    addBot(reply); pushHist(text,reply);
+    if(document.getElementById('tog2').classList.contains('on')){
+      const m=reply.match(/```(?:lua|luau)?\n([\s\S]*?)```/);
+      if(m) navigator.clipboard.writeText(m[1].trim()).catch(()=>{});
+    }
+  }catch(err){rmTyping(tid);conv.pop();addErr('❌ Network error — check your connection.')}
+  finally{busy=false;setDis(false)}
+}
+
+/* ── RENDER ── */
+function addUser(t){ap(`<div class="msg user"><div class="av usr">👤</div><div class="bbl">${esc(t)}</div></div>`)}
+function addTyping(id){ap(`<div class="msg bot" id="${id}"><div class="av bot">🍓</div><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`)}
+function rmTyping(id){document.getElementById(id)?.remove()}
+function addErr(m){ap(`<div class="msg bot"><div class="av bot">🍓</div><div class="bbl err">${esc(m)}</div></div>`)}
+function addBot(t){ap(`<div class="msg bot"><div class="av bot">🍓</div><div class="bbl">${renderMD(t)}</div></div>`)}
+function ap(html){
+  const c=document.getElementById('chat-msgs');
+  const d=document.createElement('div'); d.innerHTML=html;
+  c.appendChild(d.firstChild); setTimeout(()=>c.scrollTop=c.scrollHeight,40);
+}
+function setDis(v){document.getElementById('sbtn').disabled=v}
+function clearChat(){
+  conv=[];
+  document.getElementById('chat-msgs').innerHTML=`<div class="msg bot"><div class="av bot">🍓</div><div class="bbl">Cleared! What shall we script? 🍓</div></div>`;
+}
+
+/* ── MARKDOWN ── */
+function renderMD(text){
+  const blocks=[];
+  text=text.replace(/```(lua|luau|)\n?([\s\S]*?)```/g,(_,lang,code)=>{
+    const i=blocks.length; blocks.push(mkCode(lang||'lua',code.trim())); return '@@'+i+'@@';
+  });
+  text=text.replace(/`([^`]+)`/g,'<span class="ic">$1</span>');
+  text=text.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  text=text.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  text=text.replace(/^###\s(.+)$/gm,'<div style="font-size:14px;font-weight:800;margin:10px 0 4px;color:var(--accent)">$1</div>');
+  text=text.replace(/^##\s(.+)$/gm,'<div style="font-size:15px;font-weight:800;margin:12px 0 4px;color:var(--accent)">$1</div>');
+  text=text.replace(/^#\s(.+)$/gm,'<div style="font-size:16px;font-weight:800;margin:12px 0 6px;color:var(--accent)">$1</div>');
+  text=text.replace(/^[-*]\s(.+)$/gm,'<div style="padding:2px 0 2px 12px;border-left:2px solid var(--accent);margin:3px 0;font-size:13px">$1</div>');
+  text=text.replace(/^\d+\.\s(.+)$/gm,'<div style="padding:2px 0 2px 12px;border-left:2px solid var(--blue);margin:3px 0;font-size:13px">$1</div>');
+  text=text.replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+  text=text.replace(/@@(\d+)@@/g,(_,i)=>blocks[parseInt(i)]);
+  return text;
+}
+function mkCode(lang,code){
+  const id='c'+Math.random().toString(36).slice(2,8);
+  return `<div class="cc"><div class="cch"><span>🍓 ${lang.toUpperCase()}</span><button class="cpbtn" onclick="cpCode('${id}')">Copy</button></div><pre id="${id}">${hl(esc(code))}</pre></div>`;
+}
+function hl(c){
+  return c
+    .replace(/\b(local|function|end|if|then|else|elseif|for|while|do|repeat|until|return|break|not|and|or|in|true|false|nil)\b/g,'<span class="kw">$1</span>')
+    .replace(/\b(game|workspace|script|Instance|Color3|UDim2|Vector3|CFrame|Enum|task|math|table|string|print|warn|error|pairs|ipairs|next|type|tostring|tonumber|pcall|xpcall|require|coroutine|select|rawget|rawset|setmetatable|getmetatable)\b/g,'<span class="fn">$1</span>')
+    .replace(/("(?:[^"\\]|\\.)*")/g,'<span class="str">$1</span>')
+    .replace(/('(?:[^\'\\]|\\.)*')/g,'<span class="str">$1</span>')
+    .replace(/\b(\d+\.?\d*)\b/g,'<span class="num">$1</span>')
+    .replace(/(--[^\n]*)/g,'<span class="cm">$1</span>');
+}
+function cpCode(id){
+  const pre=document.getElementById(id);
+  navigator.clipboard.writeText(pre.innerText).then(()=>{
+    const btn=pre.previousElementSibling?.querySelector('.cpbtn');
+    if(btn){btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1800)}
+  });
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* ── HISTORY ── */
+function pushHist(prompt,reply){
+  sHist.unshift({id:Date.now(),prompt:prompt.slice(0,60),time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),full:prompt});
+  if(sHist.length>30)sHist.pop();
+  localStorage.setItem('bb_hist',JSON.stringify(sHist));
+  renderHist();
+}
+function renderHist(){
+  const el=document.getElementById('hlist'); if(!el)return;
+  const icons=['⚡','🍓','👑','🌾','👁️','🦘','🌀','🌈','🫐','⚔️','👻','💾'];
+  if(!sHist.length){el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">No scripts yet — start chatting!</div>';return}
+  el.innerHTML=sHist.map((h,i)=>`<div class="hitem" onclick="rerun(${i})"><div class="hico">${icons[i%icons.length]}</div><div class="hinfo"><h4>${esc(h.prompt)}</h4><span>Today · ${h.time}</span></div></div>`).join('');
+}
+function rerun(i){const h=sHist[i];if(!h)return; showPage('chat'); setTimeout(()=>send(h.full),120)}
+
+/* ── INIT ── */
+window.addEventListener('DOMContentLoaded',()=>{updateKeyUI();renderHist();if(!apiKey)setTimeout(showModal,700)});
+</script>
+</body>
+</html>
